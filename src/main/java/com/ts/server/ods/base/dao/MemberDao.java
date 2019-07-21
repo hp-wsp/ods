@@ -60,7 +60,7 @@ public class MemberDao {
     public boolean delete(String id){
         final String sql = "UPDATE b_member SET username = CONCAT(username,'@', ?), is_delete = true WHERE id = ?";
 
-        String random = RandomStringUtils.randomAscii(5);
+        String random = RandomStringUtils.randomAlphabetic(16);
         return jdbcTemplate.update(sql, random, id) > 0;
     }
 

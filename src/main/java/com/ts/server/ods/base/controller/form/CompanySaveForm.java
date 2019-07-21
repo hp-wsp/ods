@@ -16,9 +16,10 @@ public class CompanySaveForm {
     @NotBlank
     @ApiModelProperty(value = "公司名称", required = true)
     private String name;
-    @ApiModelProperty(value = "联系电话")
+    @NotBlank
+    @ApiModelProperty(value = "申报员电话", required = true)
     private String phone;
-    @ApiModelProperty(value = "联系人")
+    @ApiModelProperty(value = "申报员姓名")
     private String contact;
 
     public String getName() {

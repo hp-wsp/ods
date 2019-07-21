@@ -1,9 +1,9 @@
 package com.ts.server.ods.base.service;
 
 import com.ts.server.ods.BaseException;
+import com.ts.server.ods.base.dao.CompanyDao;
 import com.ts.server.ods.base.dao.MemberDao;
 import com.ts.server.ods.base.domain.Company;
-import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.base.domain.Member;
 import com.ts.server.ods.common.id.IdGenerators;
 import org.apache.commons.lang3.StringUtils;
@@ -29,12 +29,12 @@ public class MemberService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemberService.class);
 
     private final MemberDao dao;
-    private final CompanyService companyService;
+    private final CompanyDao companyDao;
 
     @Autowired
-    public MemberService(MemberDao dao, CompanyService companyService) {
+    public MemberService(MemberDao dao, CompanyDao companyDao) {
         this.dao = dao;
-        this.companyService = companyService;
+        this.companyDao = companyDao;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -43,18 +43,31 @@ public class MemberService {
             throw new BaseException("用户名已经存在");
         }
 
+        Company company = getCompany(t.getCompanyId());
+
+        //删除所有已经存在用户
+        dao.findByCompanyId(company.getId()).forEach(e -> delete(e.getId()));
+
         t.setId(IdGenerators.uuid());
-        Company company = companyService.get(t.getCompanyId());
         t.setCompanyName(company.getName());
         dao.insert(t);
 
         return dao.findOne(t.getId());
     }
 
+    private Company getCompany(String companyId){
+        try{
+            return companyDao.findOne(companyId);
+        }catch (DataAccessException e){
+            LOGGER.error("Get company fail id={},throw={}", companyId, e.getMessage());
+            throw new BaseException("单位不存在");
+        }
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public Member update(Member t){
 
-        Company company = companyService.get(t.getCompanyId());
+        Company company = getCompany(t.getCompanyId());
         t.setCompanyName(company.getName());
         if(!dao.update(t)){
             throw new BaseException("修改申报员失败");
