@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import java.util.*;
@@ -156,4 +157,22 @@ public class MainController {
 
         return ResultVo.success(new OkVo(true));
     }
+
+//    @GetMapping(value = "code")
+//    @ApiOperation("得到验证码")
+//    public void code(@RequestParam("code")String code, HttpServletResponse response){
+//        response.setDateHeader("Expires", 0);
+//        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+//        response.addHeader("Cache-Control", "post-check=0, pre-check=0");
+//        response.setHeader("Pragma", "no-cache");
+//        response.setContentType("image/jpeg");
+//        String capText = kaptcha.createText();
+//        // store the text in the session
+//        request.getSession().setAttribute(Constants.KAPTCHA_SESSION_KEY, capText);
+//        // create the image with the text
+//        BufferedImage bi = captchaProducer.createImage(capText);
+//        ServletOutputStream out = response.getOutputStream();
+//        // write the data out
+//        ImageIO.write(bi, "jpg", out);
+//    }
 }
