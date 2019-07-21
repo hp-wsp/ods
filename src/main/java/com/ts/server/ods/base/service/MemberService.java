@@ -40,7 +40,7 @@ public class MemberService {
     @Transactional(propagation = Propagation.REQUIRED)
     public Member save(Member t){
         if(dao.hasUsername(t.getUsername())){
-            throw new BaseException("用户名已经存在");
+            throw new BaseException("手机号已经存在");
         }
 
         Company company = getCompany(t.getCompanyId());

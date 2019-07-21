@@ -23,11 +23,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
+g
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 测评任务卡业务服务
@@ -75,12 +76,17 @@ public class TaskCardService {
         Company company = companyService.get(t.getCompanyId());
         t.setCompanyName(company.getName());
 
-        Member desMember = memberService.get(t.getDecId());
-        if(!StringUtils.equals(t.getCompanyId(), desMember.getCompanyId())){
+        Optional<Member> memberOptional = memberService.getUsername(company.getPhone());
+        if(!memberOptional.isPresent()){
+            throw new BaseException("申报人员不存在");
+        }
+
+        Member member = memberOptional.get();
+        if(!StringUtils.equals(t.getCompanyId(), member.getCompanyId())){
             throw new BaseException("申报人员单位不正确");
         }
-        t.setDecId(desMember.getId());
-        t.setDecUsername(desMember.getUsername());
+        t.setDecId(member.getId());
+        t.setDecUsername(member.getUsername());
 
         Evaluation evaluation = evaluationService.get(t.getEvaId());
         t.setEvaName(evaluation.getName());
@@ -95,12 +101,10 @@ public class TaskCardService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public TaskCard update(TaskCard t){
-        Member desMember = memberService.get(t.getDecId());
-        if(!StringUtils.equals(t.getCompanyId(), desMember.getCompanyId())){
-            throw new BaseException("申报人员单位不正确");
-        }
-        t.setDecId(desMember.getId());
-        t.setDecUsername(desMember.getUsername());
+
+        TaskCard o = get(t.getId());
+        t.setDecId(o.getDecId());
+        t.setDecUsername(o.getDecUsername());
 
         Manager assManager = managerService.get(t.getAssId());
         t.setAssId(assManager.getId());

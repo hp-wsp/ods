@@ -24,7 +24,7 @@ import java.util.List;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @Service
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 public class CompanyService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyService.class);
 

@@ -20,9 +20,6 @@ public class TaskCardSaveForm {
     @ApiModelProperty(value = "审核员编号", required = true)
     @NotBlank
     private String assId;
-    @ApiModelProperty(value = "申报员编号", required = true)
-    @NotBlank
-    private String decId;
 
     public String getEvaId() {
         return evaId;
@@ -48,21 +45,12 @@ public class TaskCardSaveForm {
         this.assId = assId;
     }
 
-    public String getDecId() {
-        return decId;
-    }
-
-    public void setDecId(String decId) {
-        this.decId = decId;
-    }
-
     public TaskCard toDomain(){
         TaskCard t = new TaskCard();
 
         t.setEvaId(evaId);
         t.setCompanyId(companyId);
         t.setAssId(assId);
-        t.setDecId(decId);
 
         return t;
     }
