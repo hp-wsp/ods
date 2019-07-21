@@ -1,0 +1,11 @@
+#.class
+*.class
+
+#target
+target/**/*
+
+#log
+*.log
+
+#idea project
+.idea/**/*

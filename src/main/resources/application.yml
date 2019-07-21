@@ -1,0 +1,66 @@
+spring:
+  appliation:
+    name: ods-server
+    description: online declaration system server application
+    author: <a href="mailto:hhywangwei@gmail.com">WangWei</a>
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0
+      max-file-size: 15MB
+      max-request-size: 20MB
+  mvc:
+    date-format: yyyy-MM-dd HH:mm:ss
+    favicon:
+      enabled: false
+  jackson:
+      date-format: yyyy-MM-dd HH:mm:ss
+      default-property-inclusion: non_null
+      deserialization:
+        FAIL_ON_UNKNOWN_PROPERTIES: false
+      time-zone: GMT+8
+  datasource:
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: com.mysql.jdbc.Driver
+      username: dev
+      password: appeme_com
+      url: jdbc:mysql://cd-cdb-jll51z7q.sql.tencentcdb.com:63658/ods_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      #username: root
+      #password: appeme.com
+      #url: jdbc:mysql://127.0.0.1:3306/ods_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      hikari:
+        maximum-pool-size: 20
+        idle-timeout: 3600000
+        max-lifetime: 21600000
+        data-source-properties:
+          cache-prep-stmts: true
+          useServerPrepStmts: true
+          prep-stmt-cache-size: 250
+          prep-stmt-cache-sql-limit: 2048
+  flyway:
+    locations: classpath:/db
+    enabled: true
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,application/json
+
+ods:
+  resource: d:/data
+
+qq:
+  sms:
+    appid: 1400228095
+    app_key: 4a86c4317d9071fc0f40cab7a84bd17c
+    sign: 九江智慧社区
+    password-tmp: 374914
+    apply-tmp: 375696
+    back-tmp: 366318
+    urge-tmp: 366317

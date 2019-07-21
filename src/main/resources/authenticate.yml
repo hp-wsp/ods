@@ -1,0 +1,65 @@
+##################################################
+# 权限配置文件
+#################################################
+security:
+  auth:
+    enable: true
+    matcher: ant
+    authentications:
+      - roles:
+          - ROLE_SYS
+        patterns:
+          - uri: /manage/**/*
+            methods:
+              - "*"
+          - uri: /statistics
+            methods:
+              - "get"
+          - uri: /dateLine
+            methods:
+              - "get"
+      - roles:
+          - ROLE_GRADE
+        patterns:
+          - uri: /manage/check
+            methods:
+              - "*"
+          - uri: /manage/check/**/*
+            methods:
+              - "*"
+          - uri: /manage/bi/evaluation
+            methods:
+              - "*"
+          - uri: /manage/bi/evaluation/*
+            methods:
+              - "*"
+          - uri: /manage/evaluation/info/active
+            methods:
+              - get
+          - uri: /statistics
+            methods:
+              - "get"
+          - uri: /dateLine
+            methods:
+              - "get"
+      - roles:
+          - ROLE_DECLARATION
+        patterns:
+          - uri: /declare
+            methods:
+              - "*"
+          - uri: /declare/**/*
+            methods:
+              - "*"
+      - roles:
+          - ROLE_AUTHENTICATION
+        patterns:
+          - uri: /*/updatePassword
+            methods:
+              - post
+          - uri: /*/info
+            methods:
+              - put
+          - uri: /download/*
+            methods:
+              - get
