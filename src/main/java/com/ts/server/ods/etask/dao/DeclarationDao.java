@@ -52,11 +52,6 @@ public class DeclarationDao {
         return jdbcTemplate.update(sql, true, id) > 0;
     }
 
-    public void deleteByCardId(String cardId){
-        final String sql = "UPDATE t_declaration SET is_delete = ? WHERE card_id = ? AND is_delete = false";
-        jdbcTemplate.update(sql, true, cardId);
-    }
-
     public Declaration findOne(String id){
         final String sql = "SELECT * FROM t_declaration WHERE id = ? AND is_delete = false";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, mapper);

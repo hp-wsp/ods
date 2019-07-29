@@ -38,8 +38,8 @@ public class SmsController {
             @RequestParam(defaultValue = "0") @ApiParam(value = "查询页数") int page,
             @RequestParam(defaultValue = "15") @ApiParam(value = "查询每页记录数") int rows){
 
-        return new ResultPageVo.Builder<>(page, rows, service.query( phone,page * rows, rows))
-                .count(isCount, () -> service.count(phone))
+        return new ResultPageVo.Builder<>(page, rows, service.query( phone, true,page * rows, rows))
+                .count(isCount, () -> service.count(phone, true))
                 .build();
     }
 }

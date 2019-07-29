@@ -72,9 +72,11 @@ public class TaskCardService {
         Manager assManager = managerService.get(t.getAssId());
         t.setAssId(assManager.getId());
         t.setAssUsername(assManager.getUsername());
+        t.setAssName(assManager.getName());
 
         Company company = companyService.get(t.getCompanyId());
         t.setCompanyName(company.getName());
+        t.setCompanyGroup(company.getGroup());
 
         Optional<Member> memberOptional = memberService.getUsername(company.getPhone());
         if(!memberOptional.isPresent()){
@@ -87,6 +89,7 @@ public class TaskCardService {
         }
         t.setDecId(member.getId());
         t.setDecUsername(member.getUsername());
+        t.setDecName(member.getName());
 
         Evaluation evaluation = evaluationService.get(t.getEvaId());
         t.setEvaName(evaluation.getName());
@@ -105,19 +108,27 @@ public class TaskCardService {
         TaskCard o = get(t.getId());
         t.setDecId(o.getDecId());
         t.setDecUsername(o.getDecUsername());
+        t.setDecName(o.getDecName());
 
         Manager assManager = managerService.get(t.getAssId());
         t.setAssId(assManager.getId());
         t.setAssUsername(assManager.getUsername());
+        t.setAssName(o.getAssName());
 
         Company company = companyService.get(t.getCompanyId());
         t.setCompanyName(company.getName());
+        t.setCompanyGroup(company.getGroup());
 
         if(!dao.update(t)){
             throw new BaseException("修改任务卡失败");
         }
 
         return dao.findOne(t.getId());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateDec(String evaId, String companyId, Member member){
+        dao.updateDec(evaId,companyId, member.getId(), member.getUsername(), member.getName());
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -258,7 +269,9 @@ public class TaskCardService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateScore(String id){
         List<TaskItem> items = itemDao.findByCardId(id);
-        int total = items.stream().mapToInt(TaskItem::getScore).sum();
+        int total = items.isEmpty()? 0: items.stream()
+                .mapToInt(TaskItem::getScore).sum();
+
         dao.updateScore(id, total);
     }
 
@@ -277,7 +290,12 @@ public class TaskCardService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateGradeScore(String id){
         List<TaskItem> items = itemDao.findByCardId(id);
-        int total = items.stream().mapToInt(TaskItem::getGradeScore).sum();
+
+        int total = items.stream()
+                .filter(e -> e.getGradeScore() > 0)
+                .mapToInt(TaskItem::getGradeScore)
+                .sum();
+
         dao.updateGradeScore(id, total);
     }
 

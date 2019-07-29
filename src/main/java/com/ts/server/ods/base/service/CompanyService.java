@@ -4,13 +4,14 @@ import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.dao.CompanyDao;
 import com.ts.server.ods.base.domain.Company;
 import com.ts.server.ods.base.domain.Member;
+import com.ts.server.ods.base.service.event.UpdateMemberEvent;
 import com.ts.server.ods.common.id.IdGenerators;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,11 +31,15 @@ public class CompanyService {
 
     private final CompanyDao dao;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public CompanyService(CompanyDao dao, MemberService memberService) {
+    public CompanyService(CompanyDao dao, MemberService memberService,
+                          ApplicationEventPublisher publisher) {
+
         this.dao = dao;
         this.memberService = memberService;
+        this.publisher = publisher;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -46,7 +51,7 @@ public class CompanyService {
         return dao.findOne(t.getId());
     }
 
-    private void createMember(Company company){
+    private Member createMember(Company company){
         Member member = new Member();
 
         member.setUsername(company.getPhone());
@@ -55,7 +60,7 @@ public class CompanyService {
         member.setPhone(company.getPhone());
         member.setPassword(RandomStringUtils.random(8, "0123456789"));
 
-        memberService.save(member);
+        return memberService.save(member);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -68,10 +73,16 @@ public class CompanyService {
 
         Company n = dao.findOne(o.getId());
         if(!StringUtils.equals(o.getPhone(), n.getPhone())){
-            createMember(n);
+            deleteCompanyMember(t.getId());
+            Member member =createMember(n);
+            publisher.publishEvent(new UpdateMemberEvent(t.getId(), member));
         }
 
         return n;
+    }
+
+    private void deleteCompanyMember(String id){
+        memberService.queryByCompanyId(id).forEach(e -> memberService.delete(e.getId()));
     }
 
     public Company get(String id){
@@ -85,7 +96,13 @@ public class CompanyService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
-        return dao.delete(id);
+        boolean ok = dao.delete(id);
+
+        if(ok){
+            deleteCompanyMember(id);
+        }
+
+        return ok;
     }
 
     public Long count(String name){
@@ -94,5 +111,9 @@ public class CompanyService {
 
     public List<Company> query(String name, int offset, int limit){
         return dao.find(name, offset, limit);
+    }
+
+    public List<Company> queryNotAss(String evaId, String name){
+        return dao.findNotAss(evaId, name);
     }
 }

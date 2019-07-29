@@ -161,12 +161,19 @@ public class EvaluationService {
             throw new BaseException("评测已经申报不能删除");
         }
 
+        Evaluation t = get(id);
+        if(t.getStatus() == Evaluation.Status.OPEN){
+            throw new BaseException("评测已经开启不能删除");
+        }
+
         if(!dao.delete(id)){
             throw new BaseException("删除评测失败");
         }
 
-        taskItemDao.deleteByEvaId(id);
-        taskCardDao.deleteByEvaId(id);
+        if(taskCardDao.hasByEvaId(id)){
+            throw new BaseException("已经分配测评任务不能删除");
+        }
+
         itemDao.deleteByEvaId(id);
 
         return true;

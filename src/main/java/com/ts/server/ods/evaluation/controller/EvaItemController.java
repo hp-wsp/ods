@@ -119,15 +119,27 @@ public class EvaItemController {
             return ResultVo.success(new OkVo(true));
         }catch (IOException e){
             LOGGER.error("Import item fail throw={}", e.getMessage());
-            return ResultVo.success(new OkVo(false));
+            return ResultVo.error(253, "导入测评指标失败");
         }
     }
 
     private ExcelReader buildImportExcelReader(String evaId){
         return new ExcelReader((i, r) -> {
+            String num = getCellContent(r, 1);
+
+            boolean isHeader = i == 0 && StringUtils.equals(StringUtils.trim(StringUtils.remove(num, ' ')), "指标");
+            if(isHeader){
+                return ;
+            }
+
+            if(StringUtils.isBlank(num)){
+                LOGGER.warn("Import row num is blank");
+                return ;
+            }
+
             EvaItem t = new EvaItem();
             t.setEvaId(evaId);
-            t.setNum(getCellContent(r, 1));
+            t.setNum(num);
             t.setRequire(getCellContent(r, 2));
             t.setGrade(getCellContent(r, 3));
             String resultStr = getCellContent(r, 4);
@@ -137,11 +149,8 @@ public class EvaItemController {
             t.setResults(results);
             t.setRemark(getCellContent(r, 5));
 
-
-            if(i != 0 || !StringUtils.equals(StringUtils.trim(StringUtils.remove(t.getNum(), ' ')), "指标")){
-                EvaItem item = service.importItem(t);
-                LOGGER.debug("Import item={}", item);
-            }
+            EvaItem item = service.importItem(t);
+            LOGGER.debug("Import item={}", item);
         });
     }
 

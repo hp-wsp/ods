@@ -22,14 +22,20 @@ public class TaskCard {
     private String companyId;
     @ApiModelProperty(value = "公司名称")
     private String companyName;
+    @ApiModelProperty(value = "单位分组")
+    private String companyGroup;
     @ApiModelProperty(value = "审核员编号")
     private String assId;
     @ApiModelProperty(value = "审核员用户名")
     private String assUsername;
+    @ApiModelProperty(value = "审核员姓名")
+    private String assName;
     @ApiModelProperty(value = "申报员编号")
     private String decId;
     @ApiModelProperty(value = "申报员用户名")
     private String decUsername;
+    @ApiModelProperty(value = "申报员姓名")
+    private String decName;
     @ApiModelProperty(value = "任务是否开启")
     private boolean open;
     @ApiModelProperty(value = "任务卡状态")
@@ -91,6 +97,14 @@ public class TaskCard {
         this.companyName = companyName;
     }
 
+    public String getCompanyGroup() {
+        return companyGroup;
+    }
+
+    public void setCompanyGroup(String companyGroup) {
+        this.companyGroup = companyGroup;
+    }
+
     public String getAssId() {
         return assId;
     }
@@ -107,6 +121,14 @@ public class TaskCard {
         this.assUsername = assUsername;
     }
 
+    public String getAssName() {
+        return assName;
+    }
+
+    public void setAssName(String assName) {
+        this.assName = assName;
+    }
+
     public String getDecId() {
         return decId;
     }
@@ -121,6 +143,14 @@ public class TaskCard {
 
     public void setDecUsername(String decUsername) {
         this.decUsername = decUsername;
+    }
+
+    public String getDecName() {
+        return decName;
+    }
+
+    public void setDecName(String decName) {
+        this.decName = decName;
     }
 
     public boolean isOpen() {
@@ -191,29 +221,32 @@ public class TaskCard {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TaskCard card = (TaskCard) o;
-        return open == card.open &&
-                score == card.score &&
-                gradeScore == card.gradeScore &&
-                itemCount == card.itemCount &&
-                decCount == card.decCount &&
-                Objects.equals(id, card.id) &&
-                Objects.equals(evaId, card.evaId) &&
-                Objects.equals(evaName, card.evaName) &&
-                Objects.equals(companyId, card.companyId) &&
-                Objects.equals(companyName, card.companyName) &&
-                Objects.equals(assId, card.assId) &&
-                Objects.equals(assUsername, card.assUsername) &&
-                Objects.equals(decId, card.decId) &&
-                Objects.equals(decUsername, card.decUsername) &&
-                status == card.status &&
-                Objects.equals(updateTime, card.updateTime) &&
-                Objects.equals(createTime, card.createTime);
+        TaskCard taskCard = (TaskCard) o;
+        return open == taskCard.open &&
+                score == taskCard.score &&
+                gradeScore == taskCard.gradeScore &&
+                itemCount == taskCard.itemCount &&
+                decCount == taskCard.decCount &&
+                Objects.equals(id, taskCard.id) &&
+                Objects.equals(evaId, taskCard.evaId) &&
+                Objects.equals(evaName, taskCard.evaName) &&
+                Objects.equals(companyId, taskCard.companyId) &&
+                Objects.equals(companyName, taskCard.companyName) &&
+                Objects.equals(companyGroup, taskCard.companyGroup) &&
+                Objects.equals(assId, taskCard.assId) &&
+                Objects.equals(assUsername, taskCard.assUsername) &&
+                Objects.equals(assName, taskCard.assName) &&
+                Objects.equals(decId, taskCard.decId) &&
+                Objects.equals(decUsername, taskCard.decUsername) &&
+                Objects.equals(decName, taskCard.decName) &&
+                status == taskCard.status &&
+                Objects.equals(updateTime, taskCard.updateTime) &&
+                Objects.equals(createTime, taskCard.createTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, evaId, evaName, companyId, companyName, assId, assUsername, decId, decUsername, open, status, score, gradeScore, itemCount, decCount, updateTime, createTime);
+        return Objects.hash(id, evaId, evaName, companyId, companyName, companyGroup, assId, assUsername, assName, decId, decUsername, decName, open, status, score, gradeScore, itemCount, decCount, updateTime, createTime);
     }
 
     @Override
@@ -224,10 +257,13 @@ public class TaskCard {
                 .append("evaName", evaName)
                 .append("companyId", companyId)
                 .append("companyName", companyName)
+                .append("companyGroup", companyGroup)
                 .append("assId", assId)
                 .append("assUsername", assUsername)
+                .append("assName", assName)
                 .append("decId", decId)
                 .append("decUsername", decUsername)
+                .append("decName", decName)
                 .append("open", open)
                 .append("status", status)
                 .append("score", score)

@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 任务指标申报材料业务
@@ -41,6 +42,7 @@ public class DeclarationService {
     private final ResourceService resourceService;
     private final OdsProperties properties;
     private final MemberService memberService;
+    private final ExportWordToHtml exportWordToHtml;
 
     @Autowired
     public DeclarationService(DeclarationDao dao, TaskItemService itemService,
@@ -52,6 +54,7 @@ public class DeclarationService {
         this.resourceService = resourceService;
         this.memberService = memberService;
         this.properties = properties;
+        this.exportWordToHtml = new ExportWordToHtml(properties);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -75,17 +78,12 @@ public class DeclarationService {
             throw new BaseException(406, "权限错误不能申报材料");
         }
 
+
         String id = IdGenerators.uuid();
-        String path;
-        try{
-            path = saveFile(card, id, file);
-        }catch (IOException e){
-            LOGGER.error("Upload file cardId={},cardItemId={},throw={}", card.getId(), taskItemId, e.getMessage());
-            throw new BaseException("上传申报文件失败");
-        }
+        String viewUrl = exportWordToHtml.export(file, id).orElse("");
 
+        String path = saveFile(card, id, file).orElseThrow(() -> new BaseException("上传申报文件失败") );
         Declaration t = new Declaration();
-
         t.setId(IdGenerators.uuid());
         t.setFileName(file.getOriginalFilename());
         t.setFileSize((int)file.getSize());
@@ -99,7 +97,9 @@ public class DeclarationService {
         t.setDecUsername(member.getUsername());
 
         dao.insert(t);
-        saveResource(t);
+
+        saveResource(t, viewUrl);
+
         itemService.updateDeclare(item.getId(), true);
         if(StringUtils.isNotBlank(item.getGradeLevel())){
             itemService.clearGrade(item.getId());
@@ -108,23 +108,29 @@ public class DeclarationService {
         return dao.findOne(t.getId());
     }
 
-    private String saveFile(TaskCard card, String id, MultipartFile file)throws IOException {
-        String dir = properties.getResource()+ "/" + card.getEvaId() + "/" + card.getId();
-        LOGGER.debug("Save file cardId={},dir={}", card.getId(), dir);
-        File f = new File(dir);
-        if(!f.exists()){
-            boolean ok = f.mkdirs();
-            LOGGER.debug("Create dir cardId={}, path={}, success={}", card.getId(), dir, ok);
+    private Optional<String> saveFile(TaskCard card, String id, MultipartFile file) {
+        try{
+            String dir = properties.getResource()+ "/" + card.getEvaId() + "/" + card.getId();
+            LOGGER.debug("Save file cardId={},dir={}", card.getId(), dir);
+            File f = new File(dir);
+            if(!f.exists()){
+                boolean ok = f.mkdirs();
+                LOGGER.debug("Create dir cardId={}, path={}, success={}", card.getId(), dir, ok);
+            }
+
+            String path = dir + "/" + id;
+            file.transferTo(new File(path));
+            LOGGER.debug("Copy file taskId={}, path={}", card.getId(), path);
+
+            return Optional.of(path);
+        }catch (IOException e){
+            LOGGER.error("Upload file cardId={},cardItemId={},throw={}", card.getId(), id, e.getMessage());
+            return Optional.empty();
         }
 
-        String path = dir + "/" + id;
-        file.transferTo(new File(path));
-        LOGGER.debug("Copy file taskId={}, path={}", card.getId(), path);
-
-        return path;
     }
 
-    private void saveResource(Declaration declaration){
+    private void saveResource(Declaration declaration, String viewUrl){
         Resource t = new Resource();
 
         t.setId(declaration.getId());
@@ -133,6 +139,7 @@ public class DeclarationService {
         t.setFileSize(declaration.getFileSize());
         t.setContentType(declaration.getContentType());
         t.setType("declaration");
+        t.setViewUrl(viewUrl);
 
         resourceService.save(t);
     }

@@ -1,6 +1,5 @@
 package com.ts.server.ods.sms.domain;
 
-import com.github.qcloudsms.SmsSingleSenderResult;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -19,6 +18,10 @@ public class SmsLog {
     private String phone;
     @ApiModelProperty("发送短信息内容")
     private String content;
+    @ApiModelProperty("单位名称")
+    private String companyName;
+    @ApiModelProperty("姓名")
+    private String name;
     @ApiModelProperty("错误码")
     private int errCode;
     @ApiModelProperty("错误信息")
@@ -48,6 +51,22 @@ public class SmsLog {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getErrCode() {
@@ -83,13 +102,15 @@ public class SmsLog {
                 Objects.equals(id, smsLog.id) &&
                 Objects.equals(phone, smsLog.phone) &&
                 Objects.equals(content, smsLog.content) &&
+                Objects.equals(companyName, smsLog.companyName) &&
+                Objects.equals(name, smsLog.name) &&
                 Objects.equals(errMsg, smsLog.errMsg) &&
                 Objects.equals(createTime, smsLog.createTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, content, errCode, errMsg, createTime);
+        return Objects.hash(id, phone, content, companyName, name, errCode, errMsg, createTime);
     }
 
     @Override
@@ -98,6 +119,8 @@ public class SmsLog {
                 .append("id", id)
                 .append("phone", phone)
                 .append("content", content)
+                .append("companyName", companyName)
+                .append("name", name)
                 .append("errCode", errCode)
                 .append("errMsg", errMsg)
                 .append("createTime", createTime)

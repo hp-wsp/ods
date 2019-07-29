@@ -26,6 +26,7 @@ public class ResourceDao {
         t.setContentType(r.getString("content_type"));
         t.setPath(r.getString("path"));
         t.setType(r.getString("type"));
+        t.setViewUrl(r.getString("view_url"));
         t.setCreateTime(r.getTimestamp("create_time"));
 
         return t;
@@ -37,9 +38,9 @@ public class ResourceDao {
     }
 
     public void insert(Resource t){
-        final String sql = "INSERT INTO b_resource (id, file_name, file_size, content_type, path, type, create_time) " +
-                "VALUES(?, ?, ?, ?, ?, ?, now())";
-        jdbcTemplate.update(sql, t.getId(), t.getFileName(), t.getFileSize(), t.getContentType(), t.getPath(), t.getType());
+        final String sql = "INSERT INTO b_resource (id, file_name, file_size, content_type, path, type, view_url, create_time) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, now())";
+        jdbcTemplate.update(sql, t.getId(), t.getFileName(), t.getFileSize(), t.getContentType(), t.getPath(), t.getType(), t.getViewUrl());
     }
 
     public Resource findOne(String id){

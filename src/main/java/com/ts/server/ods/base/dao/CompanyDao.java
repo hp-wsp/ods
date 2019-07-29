@@ -27,6 +27,7 @@ public class CompanyDao {
         t.setName(r.getString("name"));
         t.setPhone(r.getString("phone"));
         t.setContact(r.getString("contact"));
+        t.setGroup(r.getString("c_group"));
         t.setUpdateTime(r.getTimestamp("update_time"));
         t.setCreateTime(r.getTimestamp("create_time"));
 
@@ -39,18 +40,17 @@ public class CompanyDao {
     }
 
     public void insert(Company t){
-        final String sql = "INSERT INTO b_company (id, name, phone, contact, update_time, create_time) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO b_company (id, name, phone, contact, c_group, update_time, create_time) " +
+                "VALUES (?, ?, ?, ?, ?, now(), now())";
 
         Date now = new Date();
-        jdbcTemplate.update(sql, t.getId(), t.getName(), t.getPhone(),
-                t.getContact(), DaoUtils.timestamp(now), DaoUtils.timestamp(now));
+        jdbcTemplate.update(sql, t.getId(), t.getName(), t.getPhone(), t.getContact(), t.getGroup());
     }
 
     public boolean update(Company t){
-        final String sql = "UPDATE b_company SET name = ?, phone = ?, contact = ?, update_time = now() " +
+        final String sql = "UPDATE b_company SET name = ?, phone = ?, contact = ?, c_group = ?, update_time = now() " +
                 "WHERE id = ? AND is_delete = false";
-        return jdbcTemplate.update(sql, t.getName(), t.getPhone(), t.getContact(), t.getId()) > 0;
+        return jdbcTemplate.update(sql, t.getName(), t.getPhone(), t.getContact(), t.getGroup(), t.getId()) > 0;
     }
 
     public Company findOne(String id){
@@ -75,5 +75,11 @@ public class CompanyDao {
 
         String nameLike = DaoUtils.like(name);
         return jdbcTemplate.query(sql, new Object[]{nameLike, limit, offset}, mapper);
+    }
+
+    public List<Company> findNotAss(String evaId, String name){
+        String nameLike = DaoUtils.like(name);
+        final String sql = "SELECT * FROM b_company WHERE id NOT IN (SELECT company_id FROM t_card WHERE eva_id = ?) AND name LIKE ? AND is_delete = false";
+        return jdbcTemplate.query(sql, new Object[]{evaId, nameLike}, mapper);
     }
 }

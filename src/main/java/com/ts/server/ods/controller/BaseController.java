@@ -22,6 +22,7 @@ import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -110,7 +113,50 @@ public class BaseController {
             }
 
             Resource t = optional.get();
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + t.getFileName() + "\"");
+            response.setHeader("Content-Disposition", "attachment; filename*=" + buildFilename(t.getFileName()));
+            response.setContentType(t.getContentType());
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(t.getFileSize()));
+            InputStream in= new FileInputStream(t.getPath());
+            byte[] buf = new byte[4096];
+            int len;
+            while((len = in.read(buf)) != -1){
+                response.getOutputStream().write(buf, 0, len);
+            }
+            response.flushBuffer();
+        }catch (IOException e){
+            LOGGER.debug("Download resource fail id={}, throw={}", id, e.getMessage());
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+        }
+    }
+
+    private String buildFilename(String filename){
+        try{
+            final String charset = "UTF-8";
+            return charset + "''"+ URLEncoder.encode(filename, charset);
+        }catch (UnsupportedEncodingException e){
+            return "";
+        }
+    }
+
+    @GetMapping(value = "/view/{id}")
+    public void view(@PathVariable("id")String id, HttpServletResponse response){
+        try{
+            Optional<Resource> optional = resourceService.get(id);
+            if(!optional.isPresent()){
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+                LOGGER.error("Download resource fail id={}", id);
+                return;
+            }
+
+            Resource t = optional.get();
+
+            if(StringUtils.isNotBlank(t.getViewUrl())){
+                response.setStatus(HttpStatus.FOUND.value());
+                response.setHeader(HttpHeaders.LOCATION, t.getViewUrl());
+                response.flushBuffer();
+                return;
+            }
+
             response.setContentType(t.getContentType());
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(t.getFileSize()));
             InputStream in= new FileInputStream(t.getPath());

@@ -41,6 +41,8 @@ public class TaskItem {
     private int gradeScore;
     @ApiModelProperty("申报材料问题")
     private String gradeRemark;
+    @ApiModelProperty("排序")
+    private int showOrder = 1000;
     @ApiModelProperty("修改时间")
     private Date updateTime;
     @ApiModelProperty("创建时间")
@@ -158,6 +160,14 @@ public class TaskItem {
         this.gradeRemark = gradeRemark;
     }
 
+    public int getShowOrder() {
+        return showOrder;
+    }
+
+    public void setShowOrder(int showOrder) {
+        this.showOrder = showOrder;
+    }
+
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -183,6 +193,7 @@ public class TaskItem {
                 declare == item.declare &&
                 grade == item.grade &&
                 gradeScore == item.gradeScore &&
+                showOrder == item.showOrder &&
                 Objects.equals(id, item.id) &&
                 Objects.equals(cardId, item.cardId) &&
                 Objects.equals(evaItemId, item.evaItemId) &&
@@ -199,7 +210,7 @@ public class TaskItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, cardId, evaItemId, evaNum, requireContent, gradeContent, remark, score, results, declare, grade, gradeLevel, gradeScore, gradeRemark, updateTime, createTime);
+        return Objects.hash(id, cardId, evaItemId, evaNum, requireContent, gradeContent, remark, score, results, declare, grade, gradeLevel, gradeScore, gradeRemark, showOrder, updateTime, createTime);
     }
 
     @Override
@@ -219,6 +230,7 @@ public class TaskItem {
                 .append("gradeLevel", gradeLevel)
                 .append("gradeScore", gradeScore)
                 .append("gradeRemark", gradeRemark)
+                .append("showOrder", showOrder)
                 .append("updateTime", updateTime)
                 .append("createTime", createTime)
                 .toString();

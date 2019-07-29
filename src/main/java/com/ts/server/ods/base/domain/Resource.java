@@ -17,6 +17,7 @@ public class Resource {
     private int fileSize;
     private String contentType;
     private String type;
+    private String viewUrl;
     private Date createTime;
 
     public String getId() {
@@ -51,6 +52,14 @@ public class Resource {
         this.fileSize = fileSize;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
     public String getType() {
         return type;
     }
@@ -59,12 +68,12 @@ public class Resource {
         this.type = type;
     }
 
-    public String getContentType() {
-        return contentType;
+    public String getViewUrl() {
+        return viewUrl;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setViewUrl(String viewUrl) {
+        this.viewUrl = viewUrl;
     }
 
     public Date getCreateTime() {
@@ -86,12 +95,13 @@ public class Resource {
                 Objects.equals(fileName, resource.fileName) &&
                 Objects.equals(contentType, resource.contentType) &&
                 Objects.equals(type, resource.type) &&
+                Objects.equals(viewUrl, resource.viewUrl) &&
                 Objects.equals(createTime, resource.createTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, path, fileName, fileSize, contentType, type, createTime);
+        return Objects.hash(id, path, fileName, fileSize, contentType, type, viewUrl, createTime);
     }
 
     @Override
@@ -103,6 +113,7 @@ public class Resource {
                 .append("fileSize", fileSize)
                 .append("contentType", contentType)
                 .append("type", type)
+                .append("viewUrl", viewUrl)
                 .append("createTime", createTime)
                 .toString();
     }

@@ -271,7 +271,8 @@ public class EvaluationBIController {
             Cell cell1 = r.createCell(1);
             cell1.setCellValue(t.getCompanyName());
             Cell cell2 = r.createCell(2);
-            cell2.setCellValue(t.getGradeScore());
+            String score = String.format("%d%02d",t.getGradeScore()/ 100, t.getGradeScore() % 100);
+            cell2.setCellValue(score);
         }, is2003, headData);
     }
 }

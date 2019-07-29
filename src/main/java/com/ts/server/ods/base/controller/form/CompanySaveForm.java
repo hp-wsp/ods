@@ -21,6 +21,8 @@ public class CompanySaveForm {
     private String phone;
     @ApiModelProperty(value = "申报员姓名")
     private String contact;
+    @ApiModelProperty(value = "分组")
+    private String group;
 
     public String getName() {
         return name;
@@ -46,12 +48,21 @@ public class CompanySaveForm {
         this.contact = contact;
     }
 
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
     public Company toDomain(){
         Company t = new Company();
 
         t.setName(name);
         t.setPhone(phone);
         t.setContact(contact);
+        t.setGroup(group);
 
         return t;
     }

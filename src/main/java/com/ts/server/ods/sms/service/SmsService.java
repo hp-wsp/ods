@@ -3,6 +3,8 @@ package com.ts.server.ods.sms.service;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 import com.ts.server.ods.SmsProperties;
+import com.ts.server.ods.base.domain.Member;
+import com.ts.server.ods.base.service.MemberService;
 import com.ts.server.ods.common.id.IdGenerators;
 import com.ts.server.ods.sms.dao.SmsLogDao;
 import com.ts.server.ods.sms.domain.SmsLog;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -24,12 +27,14 @@ import java.util.function.Function;
 @Transactional(readOnly = true)
 public class SmsService {
     private final SmsLogDao dao;
+    private final MemberService memberService;
     private final SmsSingleSender sender;
     private final SmsProperties properties;
 
     @Autowired
-    public SmsService(SmsLogDao dao, SmsProperties properties) {
+    public SmsService(SmsLogDao dao, MemberService memberService, SmsProperties properties) {
         this.dao = dao;
+        this.memberService = memberService;
         this.sender = new SmsSingleSender(properties.getAppid(), properties.getAppKey());
         this.properties = properties;
     }
@@ -40,6 +45,11 @@ public class SmsService {
         t.setId(IdGenerators.uuid());
         t.setPhone(phone);
         t.setContent(content);
+        getMember(phone).ifPresent(e -> {
+            t.setCompanyName(e.getCompanyName());
+            t.setName(e.getName());
+        });
+
         try{
             SmsSingleSenderResult result = sender.send(0, "86", phone, content, "", "");
             t.setErrCode(result.result);
@@ -49,6 +59,10 @@ public class SmsService {
             t.setErrMsg(StringUtils.left(e.getMessage(), 400));
         }
         dao.insert(t);
+    }
+
+    private Optional<Member> getMember(String phone){
+        return memberService.getUsername(phone);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -62,7 +76,10 @@ public class SmsService {
         t.setId(IdGenerators.uuid());
         t.setPhone(phone);
         t.setContent(funLogContent.apply(params));
-
+        getMember(phone).ifPresent(e -> {
+            t.setCompanyName(e.getCompanyName());
+            t.setName(e.getName());
+        });
         try{
             SmsSingleSenderResult result = sender.sendWithParam("86", phone,
                     Integer.valueOf(templateId), params,  properties.getSign(), "", "");
@@ -75,11 +92,11 @@ public class SmsService {
         dao.insert(t);
     }
 
-    public Long count(String phone){
-        return dao.count(phone);
+    public Long count(String phone, Boolean fail){
+        return dao.count(phone, fail);
     }
 
-    public List<SmsLog> query(String phone, int offset, int limit){
-        return dao.find(phone, offset, limit);
+    public List<SmsLog> query(String phone, Boolean fail, int offset, int limit){
+        return dao.find(phone, fail, offset, limit);
     }
 }

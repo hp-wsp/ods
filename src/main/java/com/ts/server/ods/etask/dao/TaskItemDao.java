@@ -31,10 +31,11 @@ public class TaskItemDao {
 
     public void insert(TaskItem t){
         final String sql = "INSERT INTO t_item (id, card_id, eva_item_id, eva_num, require_content, grade_content, remark, score, " +
-                "result_labels, result_scores, update_time, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())";
+                "result_labels, result_scores, show_order, update_time, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())";
 
         jdbcTemplate.update(sql, t.getId(), t.getCardId(), t.getEvaItemId(), t.getEvaNum(), t.getRequireContent(), t.getGradeContent(),
-                t.getRemark(), t.getScore(), DaoUtils.join(buildResultLabels(t.getResults())), DaoUtils.join(buildResultScores(t.getResults())));
+                t.getRemark(), t.getScore(), DaoUtils.join(buildResultLabels(t.getResults())), DaoUtils.join(buildResultScores(t.getResults())),
+                t.getShowOrder());
     }
 
     private String[] buildResultLabels(List<TaskItem.TaskItemResult> results){
@@ -47,9 +48,9 @@ public class TaskItemDao {
 
     public boolean update(TaskItem t){
         final String sql = "UPDATE t_item SET eva_item_id = ?, eva_num = ?, require_content = ?, grade_content = ?, remark = ?, score = ?," +
-                "result_labels = ?, result_scores = ?, update_time = now() WHERE id = ?";
+                "result_labels = ?, result_scores = ?, show_order = ?, update_time = now() WHERE id = ?";
         return jdbcTemplate.update(sql, t.getEvaItemId(), t.getEvaNum(), t.getRequireContent(), t.getGradeContent(), t.getRemark(), t.getScore(),
-                DaoUtils.join(buildResultLabels(t.getResults())), DaoUtils.join(buildResultScores(t.getResults())), t.getId()) > 0;
+                DaoUtils.join(buildResultLabels(t.getResults())), DaoUtils.join(buildResultScores(t.getResults())), t.getShowOrder(), t.getId()) > 0;
     }
 
     public boolean delete(String id){
@@ -82,18 +83,6 @@ public class TaskItemDao {
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, mapper);
     }
 
-    public boolean hasCardItem(String cardId, String evaItemId){
-        final String sql = "SELECT COUNT(id) FROM t_item  WHERE card_id = ? AND eva_item_id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{cardId, evaItemId}, Integer.class);
-        return count != null && count > 0;
-    }
-
-    public boolean hasNum(String cardId, String num){
-        final String sql = "SELECT COUNT(id) FROM t_item WHERE card_id = ? AND eva_num = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{cardId, num}, Integer.class);
-        return count != null && count > 0;
-    }
-
     public List<TaskItem> findByCardId(String cardId){
         final String sql = "SELECT * FROM t_item WHERE card_id = ?";
         return jdbcTemplate.query(sql, new Object[]{cardId}, mapper);
@@ -107,12 +96,6 @@ public class TaskItemDao {
     public Integer countDecByCardId(String cardId){
         final String sql = "SELECT COUNT(id) FROM t_item WHERE card_id = ? AND is_declare = true";
         return jdbcTemplate.queryForObject(sql, new Object[]{cardId}, Integer.class);
-    }
-
-    public boolean hasItem(String evaItemId){
-        final String sql = "SELECT COUNT(id) FROM t_item WHERE eva_item_id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{evaItemId}, Integer.class);
-        return count != null && count > 0;
     }
 
     public Long count(String cardId, String num, String require, String grade){
@@ -129,7 +112,7 @@ public class TaskItemDao {
 
     public List<TaskItem> find(String cardId, String num, String require, String grade, int offset, int limit){
         final String sql = "SELECT * FROM t_item WHERE card_id LIKE ? AND eva_num LIKE ? " +
-                "AND require_content LIKE ? AND grade_content LIKE ? ORDER BY create_time LIMIT ? OFFSET ?";
+                "AND require_content LIKE ? AND grade_content LIKE ? ORDER BY show_order, create_time LIMIT ? OFFSET ?";
 
         String taskIdLike = DaoUtils.blankLike(cardId);
         String numLike = DaoUtils.like(num);
@@ -159,6 +142,7 @@ public class TaskItemDao {
             t.setGradeScore(rs.getInt("grade_score"));
             t.setGradeRemark(rs.getString("grade_remark"));
             t.setResults(buildResults(rs));
+            t.setShowOrder(rs.getInt("show_order"));
             t.setUpdateTime(rs.getTimestamp("update_time"));
             t.setCreateTime(rs.getTimestamp("create_time"));
 

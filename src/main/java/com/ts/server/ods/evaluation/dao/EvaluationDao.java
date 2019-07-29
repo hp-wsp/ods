@@ -60,9 +60,9 @@ public class EvaluationDao {
         return jdbcTemplate.update(sql, status.name(), id) > 0;
     }
 
-    public boolean updateSms(String id, boolean sms){
+    public void updateSms(String id, boolean sms){
         final String sql = "UPDATE e_evaluation SET is_sms = ? WHERE id = ?";
-        return jdbcTemplate.update(sql, sms, id) > 0;
+        jdbcTemplate.update(sql, sms, id);
     }
 
     public boolean delete(String id){

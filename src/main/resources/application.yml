@@ -27,6 +27,9 @@ spring:
   datasource:
       type: com.zaxxer.hikari.HikariDataSource
       driver-class-name: com.mysql.jdbc.Driver
+#      username: dev
+#      password: appeme456258
+#      url: jdbc:mysql://10.97.10.250:3306/ods_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
       username: dev
       password: appeme_com
       url: jdbc:mysql://cd-cdb-jll51z7q.sql.tencentcdb.com:63658/ods_db?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
@@ -54,6 +57,8 @@ server:
 
 ods:
   resource: d:/data
+  view-dir: d:/data/view
+  view-url: /view
 
 qq:
   sms:

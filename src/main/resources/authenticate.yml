@@ -63,3 +63,6 @@ security:
           - uri: /download/*
             methods:
               - get
+          - uri: /view/*
+            methods:
+              - get

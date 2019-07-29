@@ -55,10 +55,6 @@ public class TaskItemService {
     public TaskItem save(TaskItem t){
         cardService.get(t.getCardId());
 
-        if(dao.hasCardItem(t.getCardId(), t.getEvaItemId())){
-            throw new BaseException("指标已经存在");
-        }
-
         EvaItem item = itemService.get(t.getEvaItemId());
         String num = item.getNum();
         t.setEvaNum(num);
@@ -77,9 +73,6 @@ public class TaskItemService {
     public void importItem(TaskCard card, TaskItem t){
 
         t.setEvaNum(buildNum(t.getEvaNum()));
-        if(dao.hasNum(card.getId(), t.getEvaNum())){
-            return ;
-        }
         EvaItem evaItem = importEvaItem(card.getEvaId(), t);
         t.setEvaItemId(evaItem.getId());
         t.setCardId(card.getId());
@@ -132,16 +125,12 @@ public class TaskItemService {
     public TaskItem update(TaskItem t){
         TaskItem o = get(t.getId());
 
-        if(!StringUtils.equals(t.getEvaItemId(), o.getEvaItemId()) &&
-                dao.hasCardItem(o.getCardId(), t.getEvaItemId())){
-            throw new BaseException("指标已经存在");
-        }
-
         EvaItem item = itemService.get(t.getEvaItemId());
 
         String num = item.getNum();
         t.setEvaNum(num);
         fillScore(t, gradeRates());
+        t.setShowOrder(o.getShowOrder());
 
         if(!dao.update(t)){
             cardService.updateScore(o.getCardId());
@@ -149,6 +138,11 @@ public class TaskItemService {
         }
 
         return dao.findOne(t.getId());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteByCardId(String cardId){
+        dao.deleteByCardId(cardId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

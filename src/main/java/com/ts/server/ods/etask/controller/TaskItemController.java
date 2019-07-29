@@ -21,6 +21,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,8 +126,10 @@ public class TaskItemController {
             return ResultVo.success(new OkVo(true));
         }catch (IOException e){
             LOGGER.error("Import item fail throw={}", e.getMessage());
-            return ResultVo.success(new OkVo(false));
+            return ResultVo.error(254, "导入任务卡失败");
         }
+
+
     }
 
     private Credential getCredential(){
@@ -135,23 +139,31 @@ public class TaskItemController {
     private ExcelReader buildImportExcelReader(String cardId){
         Map<String, Integer> gradeRates = gradeRates();
         TaskCard card = cardService.get(cardId);
+        service.deleteByCardId(cardId);
         return new ExcelReader((i, r) -> {
-            boolean isHeard = StringUtils.equals(StringUtils.remove(getCellContent(r, 1), ' '), "指标");
+            String num = getCellContent(r, 1);
 
+            boolean isHeard = StringUtils.equals(StringUtils.trim(StringUtils.remove(num, ' ')), "指标");
             if(isHeard){
+                return ;
+            }
+
+            if(StringUtils.isBlank(num)){
                 return ;
             }
 
             TaskItem t = new TaskItem();
             t.setCardId(card.getId());
-            t.setEvaNum(getCellContent(r, 1));
+            t.setEvaNum(num);
             t.setRequireContent(getCellContent(r, 2));
-            t.setScore((int)r.getCell(3).getNumericCellValue());
+            int score= (int)Math.round(r.getCell(3).getNumericCellValue() * 100);
+            t.setScore(score);
             t.setGradeContent(getCellContent(r, 4));
             String resultStr = getCellContent(r, 5);
             LOGGER.debug("Import excel index={},result={}", i, resultStr);
             t.setResults(buildResults(resultStr, t.getScore(), gradeRates));
             t.setRemark(getCellContent(r, 6));
+            t.setShowOrder(i);
 
             service.importItem(card, t);
         });
@@ -163,7 +175,15 @@ public class TaskItemController {
     }
 
     private String getCellContent(Row row, int col){
-        String s = row.getCell(col).getRichStringCellValue().getString();
+        Cell cell = row.getCell(col);
+        if(cell == null){
+            return "";
+        }
+        RichTextString text = cell.getRichStringCellValue();
+        if(text == null || StringUtils.isBlank(text.getString())){
+            return "";
+        }
+        String s = text.getString();
         s = StringUtils.replaceChars(s, '\n', ' ');
         s = StringUtils.replaceChars(s, '\t', ' ');
         s = StringUtils.trim(s);

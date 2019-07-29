@@ -25,6 +25,8 @@ public class SmsLogDao {
         t.setId(r.getString("id"));
         t.setPhone(r.getString("phone"));
         t.setContent(r.getString("content"));
+        t.setCompanyName(r.getString("company_name"));
+        t.setName(r.getString("name"));
         t.setErrCode(r.getInt("err_code"));
         t.setErrMsg(r.getString("err_msg"));
         t.setCreateTime(r.getTimestamp("create_time"));
@@ -38,19 +40,32 @@ public class SmsLogDao {
     }
 
     public void insert(SmsLog t){
-        final String sql = "INSERT INTO l_sms (id, phone, content, err_code, err_msg, create_time) " +
-                "VALUES (?, ?, ?, ?, ?, now())";
-        jdbcTemplate.update(sql, t.getId(), t.getPhone(), t.getContent(), t.getErrCode(), t.getErrMsg());
+        final String sql = "INSERT INTO l_sms (id, phone, content, company_name, name, err_code, err_msg, create_time) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, now())";
+        jdbcTemplate.update(sql, t.getId(), t.getPhone(), t.getContent(), t.getCompanyName(), t.getName(), t.getErrCode(), t.getErrMsg());
     }
 
-    public Long count(String phone){
-        final String sql = "SELECT COUNT(id) FROM l_sms WHERE phone LIKE ?";
+    public Long count(String phone, Boolean fail){
+        String sql = "SELECT COUNT(id) FROM l_sms WHERE phone LIKE ?";
+        if(fail != null && fail){
+            sql = sql + " AND err_code != 0 ";
+        }
+        if(fail != null && !fail){
+            sql = sql + " AND err_code = 0 ";
+        }
         String phoneLike = DaoUtils.like(phone);
         return jdbcTemplate.queryForObject(sql, new Object[]{phoneLike}, Long.class);
     }
 
-    public List<SmsLog> find(String phone, int offset, int limit){
-        final String sql = "SELECT * FROM l_sms WHERE phone LIKE ? ORDER BY create_time DESC LIMIT ? OFFSET ?";
+    public List<SmsLog> find(String phone, Boolean fail, int offset, int limit){
+        String sql = "SELECT * FROM l_sms WHERE phone LIKE ? ";
+        if(fail != null && fail){
+            sql = sql + " AND err_code != 0 ";
+        }
+        if(fail != null && !fail){
+            sql = sql + " AND err_code = 0 ";
+        }
+        sql = sql + " ORDER BY create_time DESC LIMIT ? OFFSET ?";
         String phoneLike = DaoUtils.like(phone);
         return jdbcTemplate.query(sql, new Object[]{phoneLike, limit,offset}, mapper);
     }
