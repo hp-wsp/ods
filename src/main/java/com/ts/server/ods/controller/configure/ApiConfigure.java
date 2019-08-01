@@ -28,6 +28,7 @@ public class ApiConfigure implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AuthorizationInterceptor(tokenService, authenticateService))
                 .addPathPatterns("/**")
-                .excludePathPatterns("/*/login", "/*/logout", "/*/smsPassword");
+                .excludePathPatterns("/*/login", "/*/logout",
+                        "/*/smsPassword", "/codeKey", "/codeImage");
     }
 }

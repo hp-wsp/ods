@@ -8,6 +8,14 @@ package com.ts.server.ods.security.limit;
 public interface LoginLimitService {
 
     /**
+     * 得到失败次数
+     *
+     * @param username 用户名
+     * @return 失败次数
+     */
+    int getFail(String username);
+
+    /**
      * 增加失败次数
      *
      * @param username 用户名

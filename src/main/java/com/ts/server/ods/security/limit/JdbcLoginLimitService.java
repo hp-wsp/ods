@@ -31,6 +31,12 @@ public class JdbcLoginLimitService implements LoginLimitService {
     }
 
     @Override
+    public int getFail(String username) {
+        String day = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
+        return getFailCount(username, day);
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public int incFail(String username) {
         String day = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));

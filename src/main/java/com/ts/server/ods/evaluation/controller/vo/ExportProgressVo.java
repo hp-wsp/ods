@@ -10,12 +10,23 @@ import io.swagger.annotations.ApiModelProperty;
 public class ExportProgressVo {
     @ApiModelProperty("进度")
     private final int pragress;
+    @ApiModelProperty("导出编号")
+    private final String exportId;
 
-    public ExportProgressVo(int pragress) {
+    public ExportProgressVo(int pragress){
+        this(pragress, null );
+    }
+
+    public ExportProgressVo(int pragress, String exportId) {
         this.pragress = pragress;
+        this.exportId = exportId;
     }
 
     public int getPragress() {
         return pragress;
+    }
+
+    public String getExportId() {
+        return exportId;
     }
 }

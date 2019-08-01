@@ -215,7 +215,13 @@ public class EvaluationBIController {
     @GetMapping(value = "exportProgress", produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("得到导出资源进度")
     public ResultVo<ExportProgressVo> exportProgress(@RequestParam(value = "id") @ApiParam(value = "测评编号", required = true) String id){
-        return ResultVo.success(new ExportProgressVo(executorService.progress(buildTaskKey(id))));
+        int progress = executorService.progress(buildTaskKey(id));
+        String exportId = "";
+        if(progress >= 100){
+            Evaluation t = evaluationService.get(id);
+            exportId = t.getExportId();
+        }
+        return ResultVo.success(new ExportProgressVo(progress, exportId));
     }
 
     @GetMapping(value = "score", produces = APPLICATION_JSON_UTF8_VALUE)
