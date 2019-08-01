@@ -24,6 +24,8 @@ public class TaskCard {
     private String companyName;
     @ApiModelProperty(value = "单位分组")
     private String companyGroup;
+    @ApiModelProperty(value = "单位分组编号")
+    private int companyGroupNum;
     @ApiModelProperty(value = "审核员编号")
     private String assId;
     @ApiModelProperty(value = "审核员用户名")
@@ -103,6 +105,14 @@ public class TaskCard {
 
     public void setCompanyGroup(String companyGroup) {
         this.companyGroup = companyGroup;
+    }
+
+    public int getCompanyGroupNum() {
+        return companyGroupNum;
+    }
+
+    public void setCompanyGroupNum(int companyGroupNum) {
+        this.companyGroupNum = companyGroupNum;
     }
 
     public String getAssId() {
@@ -233,6 +243,7 @@ public class TaskCard {
                 Objects.equals(companyId, taskCard.companyId) &&
                 Objects.equals(companyName, taskCard.companyName) &&
                 Objects.equals(companyGroup, taskCard.companyGroup) &&
+                Objects.equals(companyGroupNum, taskCard.companyGroupNum) &&
                 Objects.equals(assId, taskCard.assId) &&
                 Objects.equals(assUsername, taskCard.assUsername) &&
                 Objects.equals(assName, taskCard.assName) &&
@@ -246,7 +257,7 @@ public class TaskCard {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, evaId, evaName, companyId, companyName, companyGroup, assId, assUsername, assName, decId, decUsername, decName, open, status, score, gradeScore, itemCount, decCount, updateTime, createTime);
+        return Objects.hash(id, evaId, evaName, companyId, companyName, companyGroup, companyGroupNum, assId, assUsername, assName, decId, decUsername, decName, open, status, score, gradeScore, itemCount, decCount, updateTime, createTime);
     }
 
     @Override
@@ -258,6 +269,7 @@ public class TaskCard {
                 .append("companyId", companyId)
                 .append("companyName", companyName)
                 .append("companyGroup", companyGroup)
+                .append("companyGroupNum", companyGroupNum)
                 .append("assId", assId)
                 .append("assUsername", assUsername)
                 .append("assName", assName)

@@ -76,6 +76,14 @@ public class CompanyService {
             deleteCompanyMember(t.getId());
             Member member =createMember(n);
             publisher.publishEvent(new UpdateMemberEvent(t.getId(), member));
+        }else{
+            if(!StringUtils.equals(o.getContact(), n.getContact())){
+                memberService.getUsername(o.getPhone()).ifPresent(e -> {
+                    e.setName(n.getContact());
+                    memberService.update(e);
+                    publisher.publishEvent(new UpdateMemberEvent(t.getId(), e));
+                });
+            }
         }
 
         return n;

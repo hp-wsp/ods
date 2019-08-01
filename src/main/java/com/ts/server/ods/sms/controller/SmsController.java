@@ -34,12 +34,13 @@ public class SmsController {
     @ApiOperation("查询短信日志")
     public ResultPageVo<SmsLog> query(
             @ApiParam(value = "电话号码") @RequestParam(required = false) String phone,
+            @ApiParam(value = "发送失败")@RequestParam(required = false)Boolean fail,
             @RequestParam(defaultValue = "true") @ApiParam(value = "是否得到查询记录数") boolean isCount,
             @RequestParam(defaultValue = "0") @ApiParam(value = "查询页数") int page,
             @RequestParam(defaultValue = "15") @ApiParam(value = "查询每页记录数") int rows){
 
-        return new ResultPageVo.Builder<>(page, rows, service.query( phone, true,page * rows, rows))
-                .count(isCount, () -> service.count(phone, true))
+        return new ResultPageVo.Builder<>(page, rows, service.query( phone, fail,page * rows, rows))
+                .count(isCount, () -> service.count(phone, fail))
                 .build();
     }
 }

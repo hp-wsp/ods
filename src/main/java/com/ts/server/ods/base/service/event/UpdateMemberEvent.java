@@ -23,4 +23,5 @@ public class UpdateMemberEvent {
     public Member getMember() {
         return member;
     }
+
 }

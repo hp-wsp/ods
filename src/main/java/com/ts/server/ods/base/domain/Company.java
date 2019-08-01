@@ -22,6 +22,8 @@ public class Company {
     private String contact;
     @ApiModelProperty(value = "分组")
     private String group;
+    @ApiModelProperty(value = "分组编号")
+    private int groupNum;
     @ApiModelProperty(value = "修改时间")
     private Date updateTime;
     @ApiModelProperty(value = "创建时间")
@@ -67,6 +69,14 @@ public class Company {
         this.group = group;
     }
 
+    public int getGroupNum() {
+        return groupNum;
+    }
+
+    public void setGroupNum(int groupNum) {
+        this.groupNum = groupNum;
+    }
+
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -88,7 +98,8 @@ public class Company {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Company company = (Company) o;
-        return Objects.equals(id, company.id) &&
+        return groupNum == company.groupNum &&
+                Objects.equals(id, company.id) &&
                 Objects.equals(name, company.name) &&
                 Objects.equals(phone, company.phone) &&
                 Objects.equals(contact, company.contact) &&
@@ -99,7 +110,7 @@ public class Company {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, phone, contact, group, updateTime, createTime);
+        return Objects.hash(id, name, phone, contact, group, groupNum, updateTime, createTime);
     }
 
     @Override
@@ -110,6 +121,7 @@ public class Company {
                 .append("phone", phone)
                 .append("contact", contact)
                 .append("group", group)
+                .append("groupNum", groupNum)
                 .append("updateTime", updateTime)
                 .append("createTime", createTime)
                 .toString();

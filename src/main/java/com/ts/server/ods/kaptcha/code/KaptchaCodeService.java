@@ -27,6 +27,13 @@ public interface KaptchaCodeService {
     Optional<String> get(String codeKey);
 
     /**
+     * 删除验证码
+     *
+     * @param codeKey 验证码key
+     */
+    void delete(String codeKey);
+
+    /**
      * 清理过期验证码
      *
      * @param expiredTime 过期时间

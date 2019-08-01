@@ -133,10 +133,10 @@ public class TaskItemService {
         t.setShowOrder(o.getShowOrder());
 
         if(!dao.update(t)){
-            cardService.updateScore(o.getCardId());
             throw new BaseException("修改指标失败");
         }
 
+        cardService.updateScore(o.getCardId());
         return dao.findOne(t.getId());
     }
 

@@ -271,8 +271,12 @@ public class EvaluationBIController {
             Cell cell1 = r.createCell(1);
             cell1.setCellValue(t.getCompanyName());
             Cell cell2 = r.createCell(2);
-            String score = String.format("%d%02d",t.getGradeScore()/ 100, t.getGradeScore() % 100);
-            cell2.setCellValue(score);
+            cell2.setCellValue(formatScore(t.getGradeScore()));
         }, is2003, headData);
+    }
+
+    private String formatScore(int score){
+        int remain = score % 100;
+        return  remain == 0? String.valueOf(score / 100): String.format("%d.%02d", score/ 100, remain);
     }
 }

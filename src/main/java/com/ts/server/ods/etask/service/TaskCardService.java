@@ -18,6 +18,8 @@ import com.ts.server.ods.etask.domain.TaskItem;
 import com.ts.server.ods.evaluation.domain.Evaluation;
 import com.ts.server.ods.evaluation.service.EvaluationService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,8 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 public class TaskCardService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskCardService.class);
+
     private final TaskCardDao dao;
     private final TaskItemDao itemDao;
     private final EvaluationLogDao logDao;
@@ -77,6 +81,7 @@ public class TaskCardService {
         Company company = companyService.get(t.getCompanyId());
         t.setCompanyName(company.getName());
         t.setCompanyGroup(company.getGroup());
+        t.setCompanyGroupNum(company.getGroupNum());
 
         Optional<Member> memberOptional = memberService.getUsername(company.getPhone());
         if(!memberOptional.isPresent()){
@@ -106,18 +111,25 @@ public class TaskCardService {
     public TaskCard update(TaskCard t){
 
         TaskCard o = get(t.getId());
-        t.setDecId(o.getDecId());
-        t.setDecUsername(o.getDecUsername());
-        t.setDecName(o.getDecName());
 
         Manager assManager = managerService.get(t.getAssId());
         t.setAssId(assManager.getId());
         t.setAssUsername(assManager.getUsername());
-        t.setAssName(o.getAssName());
+        t.setAssName(assManager.getName());
 
         Company company = companyService.get(t.getCompanyId());
         t.setCompanyName(company.getName());
         t.setCompanyGroup(company.getGroup());
+        t.setCompanyGroupNum(company.getGroupNum());
+
+        Optional<Member> memberOptional = memberService.getUsername(company.getPhone());
+        if(!memberOptional.isPresent()){
+            throw new BaseException("申报人员不存在");
+        }
+        Member member = memberOptional.get();
+        t.setDecId(member.getId());
+        t.setDecUsername(member.getUsername());
+        t.setDecName(member.getName());
 
         if(!dao.update(t)){
             throw new BaseException("修改任务卡失败");
@@ -271,6 +283,8 @@ public class TaskCardService {
         List<TaskItem> items = itemDao.findByCardId(id);
         int total = items.isEmpty()? 0: items.stream()
                 .mapToInt(TaskItem::getScore).sum();
+
+        LOGGER.debug("Update score cardId={},total={}", id, total);
 
         dao.updateScore(id, total);
     }

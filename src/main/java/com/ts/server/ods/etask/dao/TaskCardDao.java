@@ -30,6 +30,7 @@ public class TaskCardDao {
         t.setCompanyId(r.getString("company_id"));
         t.setCompanyName(r.getString("company_name"));
         t.setCompanyGroup(r.getString("company_group"));
+        t.setCompanyGroupNum(r.getInt("company_group_num"));
         t.setAssId(r.getString("ass_id"));
         t.setAssUsername(r.getString("ass_username"));
         t.setAssName(r.getString("ass_name"));
@@ -54,20 +55,22 @@ public class TaskCardDao {
     }
 
     public void insert(TaskCard t){
-        final String sql = "INSERT INTO t_card (id, eva_id, eva_name, company_id, company_name, company_group, " +
+        final String sql = "INSERT INTO t_card (id, eva_id, eva_name, company_id, company_name, company_group, company_group_num, " +
                 "ass_id, ass_username, ass_name, dec_id, dec_username, dec_name, is_open, status, update_time, create_time) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())";
 
-        jdbcTemplate.update(sql, t.getId(), t.getEvaId(), t.getEvaName(), t.getCompanyId(), t.getCompanyName(), t.getCompanyGroup(), t.getAssId(),
-                t.getAssUsername(), t.getAssName(), t.getDecId(), t.getDecUsername(), t.getDecName(), t.isOpen(), t.getStatus().name());
+        jdbcTemplate.update(sql, t.getId(), t.getEvaId(), t.getEvaName(), t.getCompanyId(), t.getCompanyName(),
+                t.getCompanyGroup(), t.getCompanyGroupNum(), t.getAssId(), t.getAssUsername(), t.getAssName(),
+                t.getDecId(), t.getDecUsername(), t.getDecName(), t.isOpen(), t.getStatus().name());
     }
 
     public boolean update(TaskCard t){
-        final String sql = "UPDATE t_card SET company_id = ?, company_name = ?, company_group = ?,  ass_id = ?, ass_username = ?, ass_name = ?, " +
-                "dec_id = ?, dec_username = ?, dec_name = ?, update_time = now() WHERE id = ?";
+        final String sql = "UPDATE t_card SET company_id = ?, company_name = ?, company_group = ?, company_group_num = ?," +
+                "ass_id = ?, ass_username = ?, ass_name = ?, dec_id = ?, dec_username = ?, dec_name = ?, update_time = now() " +
+                "WHERE id = ?";
 
-        return jdbcTemplate.update(sql, t.getCompanyId(), t.getCompanyName(), t.getCompanyGroup(), t.getAssId(), t.getAssUsername(),
-                t.getAssName(), t.getDecId(), t.getDecUsername(), t.getDecName(), t.getId()) > 0;
+        return jdbcTemplate.update(sql, t.getCompanyId(), t.getCompanyName(), t.getCompanyGroup(), t.getCompanyGroupNum(),
+                t.getAssId(), t.getAssUsername(), t.getAssName(), t.getDecId(), t.getDecUsername(), t.getDecName(), t.getId()) > 0;
     }
 
     public boolean delete(String id){
@@ -141,7 +144,7 @@ public class TaskCardDao {
 
     public List<TaskCard> find(String evaId, String companyName, String assUsername, String decUsername, int offset, int limit){
         final String sql = "SELECT * FROM t_card WHERE eva_id LIKE ? AND company_name LIKE ? AND ass_username LIKE ? " +
-                "AND dec_username LIKE ? ORDER BY create_time ASC LIMIT ? OFFSET ?";
+                "AND dec_username LIKE ? ORDER BY company_group_num ASC, create_time ASC LIMIT ? OFFSET ?";
 
 
         String evaIdLike = DaoUtils.blankLike(evaId);

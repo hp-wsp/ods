@@ -1,9 +1,12 @@
 package com.ts.server.ods.base.controller.form;
 
 import com.ts.server.ods.base.domain.Company;
+import com.ts.server.ods.common.utils.ZhCnUtils;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
@@ -21,8 +24,9 @@ public class CompanySaveForm {
     private String phone;
     @ApiModelProperty(value = "申报员姓名")
     private String contact;
-    @ApiModelProperty(value = "分组")
-    private String group;
+    @ApiModelProperty(value = "分组编号")
+    @Min(1) @Max(100)
+    private int groupNum = 1;
 
     public String getName() {
         return name;
@@ -48,12 +52,12 @@ public class CompanySaveForm {
         this.contact = contact;
     }
 
-    public String getGroup() {
-        return group;
+    public int getGroupNum() {
+        return groupNum;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setGroupNum(int groupNum) {
+        this.groupNum = groupNum;
     }
 
     public Company toDomain(){
@@ -62,7 +66,8 @@ public class CompanySaveForm {
         t.setName(name);
         t.setPhone(phone);
         t.setContact(contact);
-        t.setGroup(group);
+        t.setGroupNum(groupNum);
+        t.setGroup(String.format("第%s组", ZhCnUtils.toChinese(groupNum)));
 
         return t;
     }
