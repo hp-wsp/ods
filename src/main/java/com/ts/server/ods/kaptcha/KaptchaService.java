@@ -26,7 +26,7 @@ import java.util.Properties;
  */
 @Service
 public class KaptchaService {
-    private static final int EXPIRED_MILLS = 5 * 60 * 1000;
+    private static final int EXPIRED_MILLS = 15 * 60 * 1000;
     private final Producer kaptcha;
     private final KaptchaCodeService codeService;
 
@@ -67,8 +67,12 @@ public class KaptchaService {
     }
 
     public boolean validate(String codeKey, String value){
-        Optional<String>   optional = codeService.get(codeKey);
-        return optional.map(e -> StringUtils.equals(value, e)).orElse(false);
+        Optional<String> optional = codeService.get(codeKey);
+        boolean ok = optional.map(e -> StringUtils.equals(value, e)).orElse(false);
+        if(ok){
+            codeService.delete(codeKey);
+        }
+        return ok;
     }
 
     @Scheduled(fixedDelay = 60 * 1000)

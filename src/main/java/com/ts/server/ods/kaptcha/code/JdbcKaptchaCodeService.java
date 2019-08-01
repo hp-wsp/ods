@@ -11,6 +11,11 @@ import javax.sql.DataSource;
 import java.util.Date;
 import java.util.Optional;
 
+/**
+ * 通过数据实现验证码
+ *
+ * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
+ */
 @Service
 @Transactional(readOnly = true)
 public class JdbcKaptchaCodeService implements KaptchaCodeService {
@@ -36,6 +41,13 @@ public class JdbcKaptchaCodeService implements KaptchaCodeService {
         }catch (DataAccessException e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void delete(String codeKey) {
+        final String sql = "DELETE FROM l_kaptcha WHERE code_key = ?";
+        jdbcTemplate.update(sql, codeKey);
     }
 
     @Override
