@@ -40,18 +40,17 @@ public class JdbcLoginLimitService implements LoginLimitService {
     @Transactional(propagation = Propagation.REQUIRED)
     public int incFail(String username) {
         String day = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
-        try{
-            int count = getFailCount(username, day);
-            incFailCount(username, day);
-            return count + 1;
-        }catch (DataAccessException e){
+        int count = getFailCount(username, day);
+        if(count == 0){
             insertFail(username, day);
             return 1;
         }
+        incFailCount(username, day);
+        return count + 1;
     }
 
     private int getFailCount(String username, String day){
-        final String sql = "SELECT l_count FROM l_login_limit WHERE username = ? AND l_day = ?";
+        final String sql = "SELECT SUM(l_count) FROM l_login_limit WHERE username = ? AND l_day = ?";
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{username, day}, Integer.class);
         return count == null? 0: count;
     }
@@ -62,7 +61,7 @@ public class JdbcLoginLimitService implements LoginLimitService {
     }
 
     private void insertFail(String username, String day){
-        final String sql = "INSERT INTO l_login_limit (username, l_day, l_count) VALUES (?, ?, 0)";
+        final String sql = "INSERT INTO l_login_limit (username, l_day, l_count) VALUES (?, ?, 1)";
         try{
             jdbcTemplate.update(sql, username, day);
         }catch (DataAccessException e){

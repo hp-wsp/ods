@@ -9,10 +9,11 @@ import com.ts.server.ods.base.service.MemberService;
 import com.ts.server.ods.common.utils.HttpUtils;
 import com.ts.server.ods.controller.form.LoginForm;
 import com.ts.server.ods.controller.vo.*;
-import com.ts.server.ods.kaptcha.code.KaptchaCodeService;
+import com.ts.server.ods.kaptcha.KaptchaService;
 import com.ts.server.ods.logger.service.OptLogService;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.authenticate.GlobalRole;
+import com.ts.server.ods.security.limit.LoginLimitService;
 import com.ts.server.ods.security.token.TokenService;
 import com.ts.server.ods.sms.service.SmsService;
 import io.swagger.annotations.Api;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import java.util.*;
@@ -45,10 +45,13 @@ public class MainController {
     private final OptLogService optLogService;
     private final SmsService smsService;
     private final SmsProperties properties;
+    private final LoginLimitService loginLimitService;
+    private final KaptchaService kaptchaService;
 
     @Autowired
     public MainController(ManagerService managerService, MemberService memberService, TokenService tokenService,
-                          OptLogService optLogService, SmsService smsService, SmsProperties properties) {
+                          OptLogService optLogService, SmsService smsService, SmsProperties properties,
+                          LoginLimitService loginLimitService, KaptchaService kaptchaService) {
 
         this.managerService = managerService;
         this.memberService = memberService;
@@ -56,20 +59,35 @@ public class MainController {
         this.optLogService = optLogService;
         this.smsService = smsService;
         this.properties = properties;
+        this.loginLimitService = loginLimitService;
+        this.kaptchaService= kaptchaService;
     }
 
     @PostMapping(value = "/manage/login", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("管理员登录")
     public ResultVo<LoginVo<Manager>> manageLogin(@Valid @RequestBody LoginForm form, HttpServletRequest request){
+        boolean needCode  = loginLimitService.getFail(form.getUsername()) > 3;
+
+        if(needCode && StringUtils.isBlank(form.getCode())){
+            throw new BaseException(103, "验证码不能为空");
+        }
+        if(needCode && !kaptchaService.validate(form.getCodeKey(),form.getCode())){
+            throw new BaseException(104, "验证码错误");
+        }
+
         Optional<Manager> optional = managerService.getValidate(form.getUsername(), form.getPassword());
-        if(!optional.isPresent()){
+        if(optional.isPresent()){
+            loginLimitService.resetFail(form.getUsername());
+        }else{
+            if(loginLimitService.incFail(form.getUsername()) > 4){
+                throw new BaseException(102, "用户或密码错误");
+            }
             throw new BaseException(101, "用户名或密码错误");
         }
 
         Manager m = optional.get();
         Credential credential = new Credential(m.getId(), m.getUsername(),
                 Arrays.asList(m.getRole(), GlobalRole.ROLE_AUTHENTICATION.name()));
-
         String token = tokenService.generate(credential);
 
         optLogService.save("管理员登录", new String[]{"用户名", "IP"},

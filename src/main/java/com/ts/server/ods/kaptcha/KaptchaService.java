@@ -31,27 +31,27 @@ public class KaptchaService {
     private final KaptchaCodeService codeService;
 
     @Autowired
-    public KaptchaService(KaptchaCodeService codeService){
-        this.kaptcha = kaptcha();
+    public KaptchaService(KaptchaProperties properties, KaptchaCodeService codeService){
+        this.kaptcha = kaptcha(properties);
         this.codeService = codeService;
     }
 
-    private DefaultKaptcha kaptcha(){
+    private DefaultKaptcha kaptcha(KaptchaProperties properties){
         DefaultKaptcha kaptcha = new DefaultKaptcha();
-        kaptcha.setConfig(config());
+        kaptcha.setConfig(config(properties));
         return kaptcha;
     }
 
-    private Config config(){
-        Properties properties = new Properties();
-        properties.setProperty("kaptcha.border", "yes");
-        properties.setProperty("kaptcha.border.color", "105,179,90");
-        properties.setProperty("kaptcha.image.width", "125");
-        properties.setProperty("kaptcha.image.height", "45");
-        properties.setProperty("kaptcha.textproducer.font.color", "blue");
-        properties.setProperty("kaptcha.textproducer.font.size", "45");
-        properties.setProperty("kaptcha.textproducer.char.length", "4");
-        return new Config(properties);
+    private Config config(KaptchaProperties properties){
+        Properties pro = new Properties();
+        pro.setProperty("kaptcha.border", properties.isBorder()? "yes": "no");
+        pro.setProperty("kaptcha.border.color", properties.getBorderColor());
+        pro.setProperty("kaptcha.image.width", String.valueOf(properties.getWidth()));
+        pro.setProperty("kaptcha.image.height", String.valueOf(properties.getHeight()));
+        pro.setProperty("kaptcha.textproducer.font.color", properties.getFontColor());
+        pro.setProperty("kaptcha.textproducer.font.size", String.valueOf(properties.getFontSize()));
+        pro.setProperty("kaptcha.textproducer.char.length", String.valueOf(properties.getCharLength()));
+        return new Config(pro);
     }
 
     public void writCodeImage(String codeKey, OutputStream outputStream)throws IOException {

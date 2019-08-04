@@ -18,6 +18,8 @@ public class LoginForm {
     @NotBlank
     @ApiModelProperty(value = "登陆密码", required = true)
     private String password;
+    @ApiModelProperty(value = "验证码key")
+    private String codeKey;
     @ApiModelProperty(value = "验证码")
     private String code;
 
@@ -35,6 +37,14 @@ public class LoginForm {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCodeKey() {
+        return codeKey;
+    }
+
+    public void setCodeKey(String codeKey) {
+        this.codeKey = codeKey;
     }
 
     public String getCode() {

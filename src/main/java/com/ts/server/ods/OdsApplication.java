@@ -1,6 +1,7 @@
 package com.ts.server.ods;
 
 import com.ts.server.ods.common.spring.MixPropertySourceFactory;
+import com.ts.server.ods.kaptcha.KaptchaProperties;
 import com.ts.server.ods.security.authenticate.AuthenticateProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @PropertySource(value = "classpath:authenticate.yml", factory = MixPropertySourceFactory.class)
-@EnableConfigurationProperties({OdsProperties.class, SmsProperties.class, AuthenticateProperties.class})
+@EnableConfigurationProperties({OdsProperties.class, SmsProperties.class,
+        AuthenticateProperties.class, KaptchaProperties.class})
 public class OdsApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(OdsApplication.class);
 

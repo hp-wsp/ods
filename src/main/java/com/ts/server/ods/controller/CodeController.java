@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,9 +34,9 @@ public class CodeController {
 
     private final KaptchaService kaptchaService;
 
+    @Autowired
     public CodeController(KaptchaService kaptchaService) {
         this.kaptchaService = kaptchaService;
-
     }
 
     @RequestMapping(value = "codeKey", produces = APPLICATION_JSON_UTF8_VALUE)
