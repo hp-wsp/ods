@@ -68,12 +68,19 @@ public class LaunchSmsRunner implements ProgressRunnable {
 
         int sendCount = 0;
         for(TaskCard card: cards){
-            Member member = memberService.get(card.getDecId());
-            String[] params = buildOpenEvaSmsParams(member, evaluation);
 
-            smsService.sendTemplate(member.getPhone(), properties.getApplyTmp(), params,
-                    e -> String.format("%s申报已经开始; 登录平台 用户名: %s; 密码:%s; 申报时间:%s - %s;",
-                            params[0], params[1], "******", params[3], params[4]));
+            try{
+                Member member = memberService.get(card.getDecId());
+                String[] params = buildOpenEvaSmsParams(member, evaluation);
+
+                smsService.sendTemplate(member.getPhone(), properties.getApplyTmp(), params,
+                        e -> String.format("%s申报已经开始; 登录平台 用户名: %s; 密码:%s; 申报时间:%s - %s;",
+                                params[0], params[1], "******", params[3], params[4]));
+
+            }catch (Exception e){
+                LOGGER.debug("Send launch sms fail cardId={}, companyName={}, sendCount={}, throw={}",
+                        card.getId(), card.getCompanyName(), sendCount, e.getMessage());
+            }
 
             sendCount = sendCount + 1;
             progress = (sendCount * 100)/ count;

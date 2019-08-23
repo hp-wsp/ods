@@ -82,7 +82,7 @@ public class SmsService {
         });
         try{
             SmsSingleSenderResult result = sender.sendWithParam("86", phone,
-                    Integer.valueOf(templateId), params,  properties.getSign(), "", "");
+                    Integer.parseInt(templateId), params,  properties.getSign(), "", "");
             t.setErrCode(result.result);
             t.setErrMsg(StringUtils.left(result.errMsg, 400));
         }catch (Exception e){
