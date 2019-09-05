@@ -4,7 +4,6 @@ import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.domain.GradeRate;
 import com.ts.server.ods.base.service.GradeRateService;
 import com.ts.server.ods.common.id.IdGenerators;
-import com.ts.server.ods.etask.dao.DeclarationDao;
 import com.ts.server.ods.etask.dao.TaskItemDao;
 import com.ts.server.ods.etask.domain.TaskCard;
 import com.ts.server.ods.etask.domain.TaskItem;
@@ -34,18 +33,15 @@ public class TaskItemService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskItemService.class);
 
     private final TaskItemDao dao;
-    private final DeclarationDao declarationDao;
     private final TaskCardService cardService;
     private final EvaItemService itemService;
     private final GradeRateService rateService;
 
     @Autowired
-    public TaskItemService(TaskItemDao dao, DeclarationDao declarationDao,
-                           TaskCardService cardService, EvaItemService itemService,
-                           GradeRateService rateService) {
+    public TaskItemService(TaskItemDao dao, TaskCardService cardService,
+                           EvaItemService itemService, GradeRateService rateService) {
 
         this.dao = dao;
-        this.declarationDao = declarationDao;
         this.cardService = cardService;
         this.itemService = itemService;
         this.rateService = rateService;
@@ -148,10 +144,6 @@ public class TaskItemService {
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
 
-        if(declarationDao.hasByItemId(id)){
-            throw new BaseException("测评任务指标已经申报不能删除");
-        }
-
         TaskItem o = get(id);
         boolean ok =  dao.delete(id);
         if(ok){
@@ -177,7 +169,7 @@ public class TaskItemService {
         TaskItem item = get(id);
         TaskCard card = cardService.get(item.getCardId());
 
-        if(!card.isOpen()){
+        if(!card.isOpenGrade()){
             throw  new BaseException("评测已经关闭");
         }
 

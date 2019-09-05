@@ -23,19 +23,23 @@ import com.ts.server.ods.security.CredentialContextUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.util.EncodingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -103,30 +107,42 @@ public class BaseController {
     }
 
     @GetMapping(value = "/download/{id}")
-    public void download(@PathVariable("id")String id, HttpServletResponse response){
-        try{
-            Optional<Resource> optional = resourceService.get(id);
-            if(!optional.isPresent()){
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-                LOGGER.error("Download resource fail id={}", id);
-                return;
+    public ResponseEntity<FileSystemResource> download(@PathVariable("id")String id){
+
+        Optional<Resource> optional = resourceService.get(id);
+        if(!optional.isPresent()){
+            LOGGER.error("Download resource fail id={}", id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Resource t = optional.get();
+        if(StringUtils.equals(t.getType(), "evaluation")){
+            String url = "";
+            try{
+                 url = "/downland/" + t.getId() + "/"+ URLEncoder.encode(t.getFileName(), "UTF-8");
+                LOGGER.debug("Evaluation downland url={}", url);
+            }catch (Exception e){
+                //none instance;
             }
 
-            Resource t = optional.get();
-            response.setHeader("Content-Disposition", "attachment; filename*=" + buildFilename(t.getFileName()));
-            response.setContentType(t.getContentType());
-            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(t.getFileSize()));
-            InputStream in= new FileInputStream(t.getPath());
-            byte[] buf = new byte[4096];
-            int len;
-            while((len = in.read(buf)) != -1){
-                response.getOutputStream().write(buf, 0, len);
-            }
-            response.flushBuffer();
-        }catch (IOException e){
-            LOGGER.debug("Download resource fail id={}, throw={}", id, e.getMessage());
-            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+                    .header(HttpHeaders.LOCATION, url)
+                    .build();
         }
+
+        try{
+            File file = new File(t.getPath());
+            LOGGER.debug("Downland file id={}, path={}, size={}", id, t.getPath(), file.length());
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename*=" + buildFilename(t.getFileName()))
+                    .contentLength(file.length())
+                    .contentType(MediaType.parseMediaType("application/force-download"))
+                    .body(new FileSystemResource(file));
+        }catch (Exception e){
+            LOGGER.debug("Downland file id={}, throw={}", id, e.getMessage());
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     private String buildFilename(String filename){

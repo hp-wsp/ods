@@ -1,17 +1,14 @@
 package com.ts.server.ods.evaluation.service.event;
 
 /**
- * 打开测评事件
+ * 开启审核事件
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
-public class EvaOpenEvent {
-    /**
-     * 测评编号
-     */
+public class EvaOpenGradeEvent {
     private final String evnId;
 
-    public EvaOpenEvent(String evnId) {
+    public EvaOpenGradeEvent(String evnId) {
         this.evnId = evnId;
     }
 

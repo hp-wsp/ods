@@ -29,6 +29,8 @@ public class Evaluation {
     private boolean export;
     @ApiModelProperty(value = "导出任务编号")
     private String exportId;
+    @ApiModelProperty(value = "开启申报")
+    private boolean openDec;
     @ApiModelProperty(value = "是否发送申报开始通知短信")
     private boolean sms;
     @ApiModelProperty(value = "修改时间")
@@ -104,6 +106,14 @@ public class Evaluation {
         this.exportId = exportId;
     }
 
+    public boolean isOpenDec() {
+        return openDec;
+    }
+
+    public void setOpenDec(boolean openDec) {
+        this.openDec = openDec;
+    }
+
     public boolean isSms() {
         return sms;
     }
@@ -134,6 +144,7 @@ public class Evaluation {
         if (o == null || getClass() != o.getClass()) return false;
         Evaluation that = (Evaluation) o;
         return export == that.export &&
+                openDec == that.openDec &&
                 sms == that.sms &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(name, that.name) &&
@@ -148,7 +159,7 @@ public class Evaluation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, remark, fromTime, toTime, status, export, exportId, sms, updateTime, createTime);
+        return Objects.hash(id, name, remark, fromTime, toTime, status, export, exportId, openDec, sms, updateTime, createTime);
     }
 
     @Override
@@ -160,8 +171,9 @@ public class Evaluation {
                 .append("fromTime", fromTime)
                 .append("toTime", toTime)
                 .append("status", status)
-                .append("updateExport", export)
+                .append("export", export)
                 .append("exportId", exportId)
+                .append("openDec", openDec)
                 .append("sms", sms)
                 .append("updateTime", updateTime)
                 .append("createTime", createTime)

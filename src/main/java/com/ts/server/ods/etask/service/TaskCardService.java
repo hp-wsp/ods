@@ -144,13 +144,23 @@ public class TaskCardService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void open(String evaId){
+    public void openDec(String evaId){
         dao.updateOpen(evaId, true);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void close(String evaId){
+    public void closeDec(String evaId){
         dao.updateOpen(evaId, false);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void openGrade(String evaId){
+        dao.updateOpenGrade(evaId, true);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void closeGrade(String evaId){
+        dao.updateOpenGrade(evaId, false);
     }
 
     public TaskCard get(String id){

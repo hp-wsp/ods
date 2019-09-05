@@ -66,22 +66,27 @@ public class MainController {
     @PostMapping(value = "/manage/login", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("管理员登录")
     public ResultVo<LoginVo<Manager>> manageLogin(@Valid @RequestBody LoginForm form, HttpServletRequest request){
-        boolean needCode  = loginLimitService.getFail(form.getUsername()) > 3;
-
-        if(needCode && StringUtils.isBlank(form.getCode())){
-            throw new BaseException(103, "验证码不能为空");
-        }
-        if(needCode && !kaptchaService.validate(form.getCodeKey(),form.getCode())){
-            throw new BaseException(104, "验证码错误");
-        }
+//        boolean needCode  = loginLimitService.getFail(form.getUsername()) > 3;
+//
+//        if(needCode && StringUtils.isBlank(form.getCode())){
+//            throw new BaseException(103, "验证码不能为空");
+//        }
+//        if(needCode && !kaptchaService.validate(form.getCodeKey(),form.getCode())){
+//            throw new BaseException(104, "验证码错误");
+//        }
+//
+//        Optional<Manager> optional = managerService.getValidate(form.getUsername(), form.getPassword());
+//        if(optional.isPresent()){
+//            loginLimitService.resetFail(form.getUsername());
+//        }else{
+//            if(loginLimitService.incFail(form.getUsername()) > 4){
+//                throw new BaseException(102, "用户或密码错误");
+//            }
+//            throw new BaseException(101, "用户名或密码错误");
+//        }
 
         Optional<Manager> optional = managerService.getValidate(form.getUsername(), form.getPassword());
-        if(optional.isPresent()){
-            loginLimitService.resetFail(form.getUsername());
-        }else{
-            if(loginLimitService.incFail(form.getUsername()) > 4){
-                throw new BaseException(102, "用户或密码错误");
-            }
+        if(!optional.isPresent()){
             throw new BaseException(101, "用户名或密码错误");
         }
 

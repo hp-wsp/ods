@@ -17,8 +17,10 @@ import com.ts.server.ods.evaluation.dao.EvaluationLogDao;
 import com.ts.server.ods.evaluation.domain.EvaItem;
 import com.ts.server.ods.evaluation.domain.Evaluation;
 import com.ts.server.ods.evaluation.domain.EvaluationLog;
-import com.ts.server.ods.evaluation.service.event.EvaCloseEvent;
-import com.ts.server.ods.evaluation.service.event.EvaOpenEvent;
+import com.ts.server.ods.evaluation.service.event.EvaCloseDecEvent;
+import com.ts.server.ods.evaluation.service.event.EvaCloseGradeEvent;
+import com.ts.server.ods.evaluation.service.event.EvaOpenDecEvent;
+import com.ts.server.ods.evaluation.service.event.EvaOpenGradeEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,14 +127,18 @@ public class EvaluationService {
             throw new BaseException("修改状态失败");
         }
 
-        if(status == Evaluation.Status.OPEN){
+        if(status == Evaluation.Status.OPEN) {
+            publisher.publishEvent(new EvaOpenGradeEvent(id));
             saveLog(id, "开启评测", username);
-            publisher.publishEvent(new EvaOpenEvent(id));
-        }else{
-            saveLog(id, "关闭评测", username);
-            publisher.publishEvent(new EvaCloseEvent(id));
+            return get(id);
         }
 
+        Evaluation t = get(id);
+        if(t.isOpenDec()){
+            closeDec(id, username);
+        }
+        publisher.publishEvent(new EvaCloseGradeEvent(id));
+        saveLog(id, "关闭评测", username);
         return get(id);
     }
 
@@ -179,6 +185,42 @@ public class EvaluationService {
         return true;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Evaluation openDec(String id, String username){
+        Evaluation t = get(id);
+
+        if(t.isOpenDec()){
+            throw new BaseException("已经开启申报");
+        }
+
+        if(!dao.updateOpenDec(id, true)){
+            throw new BaseException("开启测评申报失败");
+        }
+
+        saveLog(id, "开启评测申报", username);
+        publisher.publishEvent(new EvaOpenDecEvent(id));
+
+        return get(id);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Evaluation closeDec(String id, String username){
+        Evaluation t = get(id);
+
+        if(!t.isOpenDec()){
+            throw new BaseException("已经关闭申报");
+        }
+
+        if(!dao.updateOpenDec(id, false)){
+            throw new BaseException("关闭申报失败");
+        }
+
+        saveLog(id, "关闭评测申报", username);
+        publisher.publishEvent(new EvaCloseDecEvent(id));
+
+        return get(id);
+    }
+
     public Long count(String name, Evaluation.Status status){
         return dao.count(name, status);
     }
@@ -188,7 +230,7 @@ public class EvaluationService {
     }
 
     public List<Evaluation> queryActive(){
-        return dao.findActiove();
+        return dao.findActive();
     }
 
     public Optional<Evaluation> queryLasted(){

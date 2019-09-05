@@ -2,6 +2,8 @@ package com.ts.server.ods.etask.dao;
 
 import com.ts.server.ods.common.utils.DaoUtils;
 import com.ts.server.ods.etask.domain.TaskCard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
  */
 @Repository
 public class TaskCardDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskCardDao.class);
     private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<TaskCard> mapper = (r, i) -> {
@@ -38,6 +41,7 @@ public class TaskCardDao {
         t.setDecUsername(r.getString("dec_username"));
         t.setDecName(r.getString("dec_name"));
         t.setOpen(r.getBoolean("is_open"));
+        t.setOpenGrade(r.getBoolean("is_open_grade"));
         t.setStatus(TaskCard.Status.valueOf(r.getString("status")));
         t.setScore(r.getInt("score"));
         t.setGradeScore(r.getInt("grade_score"));
@@ -56,12 +60,12 @@ public class TaskCardDao {
 
     public void insert(TaskCard t){
         final String sql = "INSERT INTO t_card (id, eva_id, eva_name, company_id, company_name, company_group, company_group_num, " +
-                "ass_id, ass_username, ass_name, dec_id, dec_username, dec_name, is_open, status, update_time, create_time) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())";
+                "ass_id, ass_username, ass_name, dec_id, dec_username, dec_name, is_open, is_open_grade, status, update_time, create_time) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())";
 
         jdbcTemplate.update(sql, t.getId(), t.getEvaId(), t.getEvaName(), t.getCompanyId(), t.getCompanyName(),
                 t.getCompanyGroup(), t.getCompanyGroupNum(), t.getAssId(), t.getAssUsername(), t.getAssName(),
-                t.getDecId(), t.getDecUsername(), t.getDecName(), t.isOpen(), t.getStatus().name());
+                t.getDecId(), t.getDecUsername(), t.getDecName(), t.isOpen(), t.isOpenGrade(), t.getStatus().name());
     }
 
     public boolean update(TaskCard t){
@@ -87,6 +91,12 @@ public class TaskCardDao {
     public void updateOpen(String evaId, boolean open){
         final String sql = "UPDATE t_card SET is_open = ? WHERE eva_id = ?";
         jdbcTemplate.update(sql, open, evaId);
+    }
+
+    public void updateOpenGrade(String evaId, boolean open){
+        final String sql = "UPDATE t_card SET is_open_grade = ? WHERE eva_id = ?";
+        int count = jdbcTemplate.update(sql, open, evaId);
+        LOGGER.debug("Update open grade evaId={}, open={}, count={}", evaId, open, count);
     }
 
     public boolean updateStatus(String id, TaskCard.Status status){
@@ -158,14 +168,15 @@ public class TaskCardDao {
     public Long countOpenByAssId(String assId, String company){
         String assIdLike = DaoUtils.blankLike(assId);
         String companyLike = DaoUtils.like(company);
-        final String sql = "SELECT COUNT(id) FROM t_card WHERE ass_id LIKE ? AND company_name LIKE ? AND is_open = TRUE ORDER BY create_time DESC";
+        final String sql = "SELECT COUNT(id) FROM t_card WHERE ass_id LIKE ? AND company_name LIKE ? AND is_open_grade = TRUE " +
+                "ORDER BY create_time DESC";
         return jdbcTemplate.queryForObject(sql, new Object[]{assIdLike, companyLike}, Long.class);
     }
 
     public List<TaskCard> findOpenByAssId(String assId, String company, int offset, int limit){
         String assIdLike = DaoUtils.blankLike(assId);
         String companyLike = DaoUtils.like(company);
-        final String sql = "SELECT * FROM t_card WHERE ass_id LIKE ? AND company_name LIKE ? AND is_open = TRUE " +
+        final String sql = "SELECT * FROM t_card WHERE ass_id LIKE ? AND company_name LIKE ? AND is_open_grade = TRUE " +
                 "ORDER BY status ASC, update_time DESC LIMIT ? OFFSET ?";
         return jdbcTemplate.query(sql, new Object[]{assIdLike, companyLike, limit, offset}, mapper);
     }

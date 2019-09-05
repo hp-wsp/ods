@@ -38,8 +38,10 @@ public class TaskCard {
     private String decUsername;
     @ApiModelProperty(value = "申报员姓名")
     private String decName;
-    @ApiModelProperty(value = "任务是否开启")
+    @ApiModelProperty(value = "是否申报开启")
     private boolean open;
+    @ApiModelProperty(value = "是否审核开启")
+    private boolean openGrade;
     @ApiModelProperty(value = "任务卡状态")
     private Status status;
     @ApiModelProperty(value = "赋权")
@@ -171,6 +173,14 @@ public class TaskCard {
         this.open = open;
     }
 
+    public boolean isOpenGrade() {
+        return openGrade;
+    }
+
+    public void setOpenGrade(boolean openGrade) {
+        this.openGrade = openGrade;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -232,7 +242,9 @@ public class TaskCard {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TaskCard taskCard = (TaskCard) o;
-        return open == taskCard.open &&
+        return companyGroupNum == taskCard.companyGroupNum &&
+                open == taskCard.open &&
+                openGrade == taskCard.openGrade &&
                 score == taskCard.score &&
                 gradeScore == taskCard.gradeScore &&
                 itemCount == taskCard.itemCount &&
@@ -243,7 +255,6 @@ public class TaskCard {
                 Objects.equals(companyId, taskCard.companyId) &&
                 Objects.equals(companyName, taskCard.companyName) &&
                 Objects.equals(companyGroup, taskCard.companyGroup) &&
-                Objects.equals(companyGroupNum, taskCard.companyGroupNum) &&
                 Objects.equals(assId, taskCard.assId) &&
                 Objects.equals(assUsername, taskCard.assUsername) &&
                 Objects.equals(assName, taskCard.assName) &&
@@ -257,7 +268,7 @@ public class TaskCard {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, evaId, evaName, companyId, companyName, companyGroup, companyGroupNum, assId, assUsername, assName, decId, decUsername, decName, open, status, score, gradeScore, itemCount, decCount, updateTime, createTime);
+        return Objects.hash(id, evaId, evaName, companyId, companyName, companyGroup, companyGroupNum, assId, assUsername, assName, decId, decUsername, decName, open, openGrade, status, score, gradeScore, itemCount, decCount, updateTime, createTime);
     }
 
     @Override
@@ -277,6 +288,7 @@ public class TaskCard {
                 .append("decUsername", decUsername)
                 .append("decName", decName)
                 .append("open", open)
+                .append("openGrade", openGrade)
                 .append("status", status)
                 .append("score", score)
                 .append("gradeScore", gradeScore)

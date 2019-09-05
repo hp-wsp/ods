@@ -107,11 +107,11 @@ public class EvaItemService {
         return ok;
     }
 
-    public Long count(String evaId, String name, String require){
-        return dao.count(evaId, name, require);
+    public Long count(String evaId, String num, String require){
+        return dao.count(evaId, num, require);
     }
 
-    public List<EvaItem> query(String evaId, String name, String require, int offset, int limit){
-        return dao.find(evaId, name, require, offset, limit);
+    public List<EvaItem> query(String evaId, String num, String require, int offset, int limit){
+        return dao.find(evaId, num, require, offset, limit);
     }
 }

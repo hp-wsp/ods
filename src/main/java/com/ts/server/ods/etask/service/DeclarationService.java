@@ -85,7 +85,9 @@ public class DeclarationService {
         String path = saveFile(card, id, file).orElseThrow(() -> new BaseException("上传申报文件失败") );
         Declaration t = new Declaration();
         t.setId(IdGenerators.uuid());
-        t.setFileName(file.getOriginalFilename());
+        String filename = StringUtils.remove(file.getOriginalFilename(), " ");
+        LOGGER.debug("Declaration filename itemId={}, filename={}", id, filename);
+        t.setFileName(filename);
         t.setFileSize((int)file.getSize());
         t.setCardId(item.getCardId());
         t.setCardItemId(item.getId());
@@ -188,6 +190,10 @@ public class DeclarationService {
 
     public List<Declaration> queryByEvaItemId(String evaItemId){
         return dao.findByEvaItemId(evaItemId);
+    }
+
+    public List<Declaration> queryByItemId(String itemId){
+        return dao.findByItemId(itemId);
     }
 
 }

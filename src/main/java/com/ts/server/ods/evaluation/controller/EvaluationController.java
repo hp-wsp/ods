@@ -112,7 +112,7 @@ public class EvaluationController {
         Evaluation evaluation = service.updateStatus(id, Evaluation.Status.OPEN, credential.getUsername());
 
         optLogService.save("开启评测", new String[]{"编号", "名称"},
-                new String[]{evaluation.getId(), evaluation.getName()}, getCredential().getUsername());
+                new String[]{evaluation.getId(), evaluation.getName()}, credential.getUsername());
 
         return ResultVo.success(evaluation);
     }
@@ -124,7 +124,31 @@ public class EvaluationController {
         Evaluation evaluation = service.updateStatus(id, Evaluation.Status.CLOSE, credential.getUsername());
 
         optLogService.save("关闭评测", new String[]{"编号", "名称"},
-                new String[]{evaluation.getId(), evaluation.getName()}, getCredential().getUsername());
+                new String[]{evaluation.getId(), evaluation.getName()}, credential.getUsername());
+
+        return ResultVo.success(evaluation);
+    }
+
+    @PutMapping(value = "openDec/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation("开启申报")
+    public ResultVo<Evaluation> openDec(@PathVariable("id")String id){
+        Credential credential = getCredential();
+        Evaluation evaluation = service.openDec(id, credential.getUsername());
+
+        optLogService.save("开启申报", new String[]{"编号", "名称"},
+                new String[]{evaluation.getId(), evaluation.getName()}, credential.getUsername());
+
+        return ResultVo.success(evaluation);
+    }
+
+    @PutMapping(value = "closeDec/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation("开启申报")
+    public ResultVo<Evaluation> closeDec(@PathVariable("id")String id){
+        Credential credential = getCredential();
+        Evaluation evaluation = service.closeDec(id, credential.getUsername());
+
+        optLogService.save("关闭申报", new String[]{"编号", "名称"},
+                new String[]{evaluation.getId(), evaluation.getName()}, credential.getUsername());
 
         return ResultVo.success(evaluation);
     }

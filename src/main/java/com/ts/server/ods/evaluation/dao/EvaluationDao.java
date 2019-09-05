@@ -32,6 +32,7 @@ public class EvaluationDao {
         t.setExport(r.getBoolean("is_export"));
         t.setExportId(r.getString("export_id"));
         t.setSms(r.getBoolean("is_sms"));
+        t.setOpenDec(r.getBoolean("is_open_dec"));
         t.setUpdateTime(r.getTimestamp("update_time"));
         t.setCreateTime(r.getTimestamp("create_time"));
 
@@ -44,8 +45,8 @@ public class EvaluationDao {
     }
 
     public void insert(Evaluation t){
-        final String sql = "INSERT INTO e_evaluation (id, name, remark, from_time, to_time, status, update_time, create_time)" +
-                " VALUES (?, ?, ?, ?, ?, ?, now(), now())";
+        final String sql = "INSERT INTO e_evaluation (id, name, remark, from_time, to_time, status, is_open_dec, update_time, create_time)" +
+                " VALUES (?, ?, ?, ?, ?, ?, false, now(), now())";
         jdbcTemplate.update(sql, t.getId(), t.getName(), t.getRemark(), t.getFromTime(), t.getToTime(), t.getStatus().name());
     }
 
@@ -63,6 +64,11 @@ public class EvaluationDao {
     public void updateSms(String id, boolean sms){
         final String sql = "UPDATE e_evaluation SET is_sms = ? WHERE id = ?";
         jdbcTemplate.update(sql, sms, id);
+    }
+
+    public boolean updateOpenDec(String id, boolean open){
+        final String sql = "UPDATE e_evaluation SET is_open_dec = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, open, id) > 0;
     }
 
     public boolean delete(String id){
@@ -104,7 +110,7 @@ public class EvaluationDao {
         return  jdbcTemplate.query(sql, new Object[]{nameLike, statusLike, limit, offset}, mapper);
     }
 
-    public List<Evaluation> findActiove(){
+    public List<Evaluation> findActive(){
         final String sql = "SELECT * FROM e_evaluation WHERE status != 'CLOSE' ORDER BY create_time";
         return jdbcTemplate.query(sql, mapper);
     }

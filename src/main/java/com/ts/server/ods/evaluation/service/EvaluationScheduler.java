@@ -24,7 +24,7 @@ public class EvaluationScheduler {
         this.service = service;
     }
 
-    @Scheduled(fixedDelay = 60000L, initialDelay = 20000L)
+//    @Scheduled(fixedDelay = 60000L, initialDelay = 20000L)
     public void open(){
         List<Evaluation> lst = service.query("", Evaluation.Status.WAIT, 0, 50);
         long now = System.currentTimeMillis();
@@ -37,7 +37,7 @@ public class EvaluationScheduler {
         return e.getFromTime().getTime()<= now && e.getToTime().getTime() >= now;
     }
 
-    @Scheduled(fixedDelay = 60000L, initialDelay = 50000L)
+    //@Scheduled(fixedDelay = 60000L, initialDelay = 50000L)
     public void close(){
         List<Evaluation> lst = service.query("", Evaluation.Status.OPEN, 0, 50);
         long now = System.currentTimeMillis();

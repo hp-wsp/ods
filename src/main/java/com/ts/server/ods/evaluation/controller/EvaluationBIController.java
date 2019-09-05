@@ -73,18 +73,19 @@ public class EvaluationBIController {
     @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("查询测评汇编")
     public ResultPageVo<EvaluationItemVo> query(@RequestParam("id")String id,
+                                                @RequestParam(value = "num", required = false)String num,
                                                 @RequestParam(defaultValue = "true") @ApiParam(value = "是否得到查询记录数") boolean isCount,
                                                 @RequestParam(defaultValue = "0") @ApiParam(value = "查询页数") int page,
                                                 @RequestParam(defaultValue = "15") @ApiParam(value = "查询每页记录数") int rows){
 
-        List<EvaItem> items = evaItemService.query(id, "", "", page * rows, rows);
+        List<EvaItem> items = evaItemService.query(id, num, "", page * rows, rows);
         List<EvaluationItemVo> itemLst = new ArrayList<>(items.size());
         for(int i = 0; i < items.size(); i++){
             itemLst.add(buildItem(items.get(i), page * rows + i));
         }
 
         return new ResultPageVo.Builder<>(page, rows, itemLst)
-                .count(isCount, () -> evaItemService.count(id, "", ""))
+                .count(isCount, () -> evaItemService.count(id, num, ""))
                 .setExt(buildQueryExt(id))
                 .build();
     }

@@ -67,6 +67,11 @@ public class DeclarationDao {
         return jdbcTemplate.query(sql, new Object[]{evaItemId}, mapper);
     }
 
+    public List<Declaration> findByItemId(String itemId){
+        final String sql = "SELECT * FROM t_declaration WHERE item_id = ? AND is_delete = false";
+        return jdbcTemplate.query(sql, new Object[]{itemId}, mapper);
+    }
+
     public boolean hasByItemId(String itemId){
         final String sql = "SELECT COUNT(id) FROM t_declaration WHERE item_id = ? AND is_delete = false";
         Integer count = jdbcTemplate.queryForObject(sql, new Object[]{itemId}, Integer.class);

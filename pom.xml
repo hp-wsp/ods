@@ -29,7 +29,7 @@
         <springfox.version>2.7.0</springfox.version>
         <poi.version>4.1.0</poi.version>
         <common-io.version>2.6</common-io.version>
-        <zip4j.version>2.0.3</zip4j.version>
+        <commons-compress.version>1.19</commons-compress.version>
         <qcloudsms.version>1.0.6</qcloudsms.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <xdocreport.version>2.0.2</xdocreport.version>
@@ -98,9 +98,9 @@
             <version>${common-io.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.lingala.zip4j</groupId>
-            <artifactId>zip4j</artifactId>
-            <version>${zip4j.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.qcloudsms</groupId>

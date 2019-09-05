@@ -1,7 +1,7 @@
 package com.ts.server.ods.etask.service.listener;
 
 import com.ts.server.ods.etask.service.TaskCardService;
-import com.ts.server.ods.evaluation.service.event.EvaOpenEvent;
+import com.ts.server.ods.evaluation.service.event.EvaOpenDecEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -12,16 +12,16 @@ import org.springframework.stereotype.Component;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @Component
-public class EvaluationOpenListener {
+public class EvaOpenDecListener {
     private final TaskCardService service;
 
     @Autowired
-    public EvaluationOpenListener(TaskCardService service) {
+    public EvaOpenDecListener(TaskCardService service) {
         this.service = service;
     }
 
     @EventListener
-    public void listener(EvaOpenEvent t){
-        service.open(t.getEvnId());
+    public void listener(EvaOpenDecEvent t){
+        service.openDec(t.getEvnId());
     }
 }
