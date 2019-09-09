@@ -98,7 +98,8 @@ public class TaskCardService {
 
         Evaluation evaluation = evaluationService.get(t.getEvaId());
         t.setEvaName(evaluation.getName());
-        t.setOpen(evaluation.getStatus() == Evaluation.Status.OPEN);
+        t.setOpenGrade(evaluation.getStatus() == Evaluation.Status.OPEN);
+        t.setOpen(evaluation.isOpenDec());
         t.setStatus(TaskCard.Status.WAIT);
 
         t.setId(IdGenerators.uuid());
