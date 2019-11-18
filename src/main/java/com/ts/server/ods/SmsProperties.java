@@ -16,6 +16,7 @@ public class SmsProperties {
     private String passwordTmp;
     private String applyTmp;
     private String backTmp;
+    private String cancelBackTmp;
     private String urgeTmp;
 
     public int getAppid() {
@@ -66,6 +67,14 @@ public class SmsProperties {
         this.backTmp = backTmp;
     }
 
+    public String getCancelBackTmp() {
+        return cancelBackTmp;
+    }
+
+    public void setCancelBackTmp(String cancelBackTmp) {
+        this.cancelBackTmp = cancelBackTmp;
+    }
+
     public String getUrgeTmp() {
         return urgeTmp;
     }
@@ -83,6 +92,7 @@ public class SmsProperties {
                 .append("passwordTmp", passwordTmp)
                 .append("applyTmp", applyTmp)
                 .append("backTmp", backTmp)
+                .append("cancelBackTmp", cancelBackTmp)
                 .append("urgeTmp", urgeTmp)
                 .toString();
     }

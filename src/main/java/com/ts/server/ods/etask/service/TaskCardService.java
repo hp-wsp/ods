@@ -237,6 +237,23 @@ public class TaskCardService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public TaskCard cancelBack(String id, String username){
+        TaskCard card = get(id);
+
+        if(card.getStatus() != TaskCard.Status.BACK){
+            throw new BaseException( "还未退回");
+        }
+
+        if(!dao.updateStatus(id, TaskCard.Status.SUBMIT)){
+            throw new BaseException("撤销退回失败");
+        }
+
+        saveLog(card.getEvaId(), String.format("%s撤销退回", card.getCompanyName()), username);
+
+        return get(id);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public TaskCard finish(String id, String username){
         TaskCard card = get(id);
 

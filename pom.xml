@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ts.server.ods</groupId>
+    <groupId>com.ts.server</groupId>
     <artifactId>ods</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -13,13 +13,6 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.9.RELEASE</version>
     </parent>
-
-    <repositories>
-        <repository>
-            <id>maven-ali</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
 
     <properties>
         <java.version>1.8</java.version>

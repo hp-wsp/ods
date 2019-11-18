@@ -49,4 +49,15 @@ public class TaskCardSmsService {
         smsService.sendTemplate(member.getPhone(), properties.getBackTmp(), new String[]{card.getEvaName()},
                 e ->  String.format("%s材料存在问题，请根据问题说明整改问题材料，重新上报", e[0]));
     }
+
+    /**
+     * 发送退回通知短信
+     *
+     * @param card {@link TaskCard}
+     */
+    public void cancelBack(TaskCard card){
+        Member member = memberService.get(card.getDecId());
+        smsService.sendTemplate(member.getPhone(), properties.getCancelBackTmp(), new String[]{card.getEvaName()},
+                e ->  String.format("%s材料存在问题，请根据问题说明整改问题材料，重新上报", e[0]));
+    }
 }

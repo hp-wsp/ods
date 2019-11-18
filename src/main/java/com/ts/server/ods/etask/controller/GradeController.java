@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -117,6 +116,25 @@ public class GradeController {
                 new String[]{newCard.getId(), newCard.getCompanyName()}, getCredential().getUsername());
 
         taskCardSmsService.back(newCard);
+        return ResultVo.success(newCard);
+    }
+
+    @PutMapping(value = "cancelBack/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation("撤回退回")
+    public ResultVo<TaskCard> cancelBack(@PathVariable("id")String id){
+        Credential credential = getCredential();
+
+        TaskCard card = cardService.get(id);
+        if(!StringUtils.equals(card.getAssId(), credential.getId()) && !isSysRole(credential)){
+            throw new BaseException("权限不够不");
+        }
+
+        TaskCard newCard = cardService.cancelBack(id, credential.getUsername());
+
+        optLogService.save("撤回退回评测", new String[]{"编号", "单位"},
+                new String[]{newCard.getId(), newCard.getCompanyName()}, getCredential().getUsername());
+
+        taskCardSmsService.cancelBack(newCard);
         return ResultVo.success(newCard);
     }
 
