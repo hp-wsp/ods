@@ -24,7 +24,7 @@ public class OdsExceptionAdvice {
     @ResponseBody
     @SuppressWarnings("unused")
     public ResultVo<String> handleBaseException(BaseException e){
-        LOGGER.error("Controller error code {} message {}", e.getCode(), e.getMessage());
+        LOGGER.error("Controller error code={}, message={}", e.getCode(), e.getMessage());
         return ResultVo.error(e.getCode(), e.getMessage());
     }
 
@@ -32,14 +32,14 @@ public class OdsExceptionAdvice {
     @ResponseBody
     @SuppressWarnings("unused")
     public ResultVo<String> handlerConversionFailedException(ConversionFailedException e){
-        LOGGER.error("Parameter conversion fail, error is {}", e.getMessage());
+        LOGGER.error("Parameter conversion fail, error= {}", e.getMessage());
         return ResultVo.error(100, "参数错误");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public ResultVo<String> handlerMethodArgumentNotValidException(MethodArgumentNotValidException e){
-        LOGGER.error("Parameter valid fail, error is {}", e.getMessage());
+        LOGGER.error("Parameter valid fail, error={}", e.getMessage());
         BindingResult result = e.getBindingResult();
         String[] messages = result.getFieldErrors().stream()
                 .map(f -> f.getField() + "=" + f.getDefaultMessage()).toArray(String[]::new);

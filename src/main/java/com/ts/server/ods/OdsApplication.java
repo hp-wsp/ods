@@ -1,7 +1,7 @@
 package com.ts.server.ods;
 
 import com.ts.server.ods.common.spring.MixPropertySourceFactory;
-import com.ts.server.ods.kaptcha.KaptchaProperties;
+import com.ts.server.ods.security.kaptcha.KaptchaProperties;
 import com.ts.server.ods.security.authenticate.AuthenticateProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package com.ts.server.ods.controller.vo;
 /**
  * 查询记录存在
  *
- * @author WangWei
+ * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 public class HasVo<T> {
     private final boolean has;

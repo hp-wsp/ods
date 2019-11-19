@@ -7,7 +7,7 @@ import org.springframework.util.Assert;
 /**
  * 返回客户端消息
  *
- * @author WangWei
+ * @@author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 public class ResultVo<T> {
     @ApiModelProperty(value = "返回编码", notes = "0:处理正常；反之处理异常")

@@ -3,7 +3,7 @@ package com.ts.server.ods.controller.vo;
 /**
  * 执行是否成功
  *
- * @author WangWei
+ * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 public class OkVo {
     private final boolean ok;
