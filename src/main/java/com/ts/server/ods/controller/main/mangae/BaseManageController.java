@@ -3,7 +3,7 @@ package com.ts.server.ods.controller.main.mangae;
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.base.service.ManagerService;
-import com.ts.server.ods.controller.main.form.ManagerInfoForm;
+import com.ts.server.ods.controller.main.mangae.form.ManagerInfoForm;
 import com.ts.server.ods.controller.main.form.PasswordUpdateForm;
 import com.ts.server.ods.controller.main.mangae.logger.UpdateMangerAccountLogDetailBuilder;
 import com.ts.server.ods.controller.main.vo.MainDateVo;

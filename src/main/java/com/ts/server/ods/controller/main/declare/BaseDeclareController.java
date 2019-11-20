@@ -4,7 +4,7 @@ import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.domain.Member;
 import com.ts.server.ods.base.service.MemberService;
 import com.ts.server.ods.controller.main.declare.logger.UpdateMemberAccountLogDetailBuilder;
-import com.ts.server.ods.controller.main.form.MemberInfoForm;
+import com.ts.server.ods.controller.main.declare.form.MemberInfoForm;
 import com.ts.server.ods.controller.main.form.PasswordUpdateForm;
 import com.ts.server.ods.controller.main.vo.MainDateVo;
 import com.ts.server.ods.controller.main.vo.MainStatsVo;

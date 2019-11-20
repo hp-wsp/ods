@@ -1,6 +1,6 @@
 package com.ts.server.ods.controller.main.declare.logger;
 
-import com.ts.server.ods.controller.main.form.MemberInfoForm;
+import com.ts.server.ods.controller.main.declare.form.MemberInfoForm;
 import com.ts.server.ods.logger.aop.annotation.ApiLogDetailBuilder;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.web.context.request.ServletRequestAttributes;

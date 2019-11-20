@@ -1,4 +1,4 @@
-package com.ts.server.ods.controller.main.form;
+package com.ts.server.ods.controller.main.mangae.form;
 
 import io.swagger.annotations.ApiModelProperty;
 
