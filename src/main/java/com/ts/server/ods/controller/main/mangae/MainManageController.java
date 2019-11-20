@@ -4,12 +4,13 @@ import com.ts.server.ods.BaseException;
 import com.ts.server.ods.SmsProperties;
 import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.base.service.ManagerService;
-import com.ts.server.ods.common.utils.HttpUtils;
 import com.ts.server.ods.controller.main.form.LoginForm;
+import com.ts.server.ods.controller.main.logger.LoginLogDetailBuilder;
+import com.ts.server.ods.controller.main.logger.ObtainLoginUsername;
 import com.ts.server.ods.controller.main.vo.LoginVo;
 import com.ts.server.ods.controller.vo.*;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.kaptcha.KaptchaService;
-import com.ts.server.ods.logger.service.OptLogService;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.authenticate.GlobalRole;
 import com.ts.server.ods.security.limit.LoginLimitService;
@@ -40,7 +41,6 @@ public class MainManageController {
 
     private final ManagerService managerService;
     private final TokenService tokenService;
-    private final OptLogService optLogService;
     private final SmsService smsService;
     private final SmsProperties properties;
     private final LoginLimitService loginLimitService;
@@ -48,12 +48,11 @@ public class MainManageController {
 
     @Autowired
     public MainManageController(ManagerService managerService, TokenService tokenService,
-                                OptLogService optLogService, SmsService smsService, SmsProperties properties,
+                                SmsService smsService, SmsProperties properties,
                                 LoginLimitService loginLimitService, KaptchaService kaptchaService) {
 
         this.managerService = managerService;
         this.tokenService = tokenService;
-        this.optLogService = optLogService;
         this.smsService = smsService;
         this.properties = properties;
         this.loginLimitService = loginLimitService;
@@ -61,6 +60,7 @@ public class MainManageController {
     }
 
     @PostMapping(value = "login", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "管理员登录", buildDetail = LoginLogDetailBuilder.class, obtainUsername = ObtainLoginUsername.class)
     @ApiOperation("管理员登录")
     public ResultVo<LoginVo<Manager>> login(@Valid @RequestBody LoginForm form, HttpServletRequest request){
         boolean needCode  = loginLimitService.getFail(form.getUsername()) > 3;
@@ -86,9 +86,6 @@ public class MainManageController {
         Credential credential = new Credential(m.getId(), m.getUsername(),
                 Arrays.asList(m.getRole(), GlobalRole.ROLE_AUTHENTICATION.name()));
         String token = tokenService.generate(credential);
-
-        optLogService.save("管理员登录", new String[]{"用户名", "IP"},
-                new Object[]{form.getUsername(), HttpUtils.getHostname(request)}, form.getUsername());
 
         return ResultVo.success(new LoginVo<>(token, m));
     }

@@ -4,14 +4,14 @@ import org.aspectj.lang.JoinPoint;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * 空的日志描述
+ * 不获取用户名
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
-public class NoneLogDetailBuilder implements ApiLogDetailBuilder {
+public class NoneObtainUsername implements ObtainUsername {
 
     @Override
-    public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-        return  "";
+    public String obtain(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        return "";
     }
 }

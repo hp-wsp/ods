@@ -41,6 +41,17 @@ public class OptLogService {
         dao.insert(t);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void save(String name, String username, String detail){
+        OptLog t = new OptLog();
+
+        t.setDetail(name);
+        t.setUsername(username);
+        t.setParams(detail);
+
+        dao.insert(t);
+    }
+
     private String buildParams(String[] paramKeys, Object[] paramValues){
         int len = paramKeys.length;
         StringBuilder builder = new StringBuilder(50);
