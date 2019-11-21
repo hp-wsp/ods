@@ -1,16 +1,14 @@
 package com.ts.server.ods.base.controller.manage;
 
-import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.controller.manage.form.CompanySaveForm;
 import com.ts.server.ods.base.controller.manage.form.CompanyUpdateForm;
+import com.ts.server.ods.base.controller.manage.logger.CompanyLogDetailBuilder;
 import com.ts.server.ods.base.domain.Company;
 import com.ts.server.ods.base.service.CompanyService;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
-import com.ts.server.ods.logger.service.OptLogService;
-import com.ts.server.ods.security.Credential;
-import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,58 +22,42 @@ import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 /**
- * 公司管理API接口
+ * 单位管理API接口
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
 @RequestMapping("/manage/company")
-@Api(value = "/manage/company", tags = "公司管理API接口")
+@Api(value = "/manage/company", tags = "单位管理API接口")
 public class CompanyManageController {
-
     private final CompanyService service;
-    private final OptLogService optLogService;
 
     @Autowired
-    public CompanyManageController(CompanyService service, OptLogService optLogService) {
+    public CompanyManageController(CompanyService service) {
         this.service = service;
-        this.optLogService = optLogService;
     }
 
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @ApiOperation("新增公司")
+    @EnableApiLogger(name = "新增单位", buildDetail = CompanyLogDetailBuilder.SaveBuilder.class)
+    @ApiOperation("新增单位")
     public ResultVo<Company> save(@Valid @RequestBody CompanySaveForm form){
         Company company = service.save(form.toDomain());
-
-        optLogService.save("新增公司", new String[]{"编号", "名称"},
-                new String[]{company.getId(), company.getName()}, getCredential().getUsername());
-
         return ResultVo.success(company);
     }
 
     @PutMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @ApiOperation("修改公司")
+    @EnableApiLogger(name = "修改单位", buildDetail = CompanyLogDetailBuilder.UpdateBuilder.class)
+    @ApiOperation("修改单位")
     public ResultVo<Company> update(@Valid @RequestBody CompanyUpdateForm form){
         Company company = service.update(form.toDomain());
-
-        optLogService.save("修改公司", new String[]{"编号", "名称"},
-                new String[]{company.getId(), company.getName()}, getCredential().getUsername());
-
         return ResultVo.success(company);
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改单位", buildDetail = CompanyLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除公司")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
-        Company company = service.get(id);
-
         boolean ok = service.delete(id);
-
-        if(ok){
-            optLogService.save("删除公司", new String[]{"编号", "名称"},
-                    new String[]{company.getId(), company.getName()}, getCredential().getUsername());
-        }
-
         return ResultVo.success(new OkVo(ok));
     }
 
@@ -102,9 +84,5 @@ public class CompanyManageController {
         return new ResultPageVo.Builder<>(page, rows, service.query( name,page * rows, rows))
                 .count(isCount, () -> service.count( name))
                 .build();
-    }
-
-    private Credential getCredential(){
-        return CredentialContextUtils.getCredential().orElseThrow(() -> new BaseException("用户未授权"));
     }
 }

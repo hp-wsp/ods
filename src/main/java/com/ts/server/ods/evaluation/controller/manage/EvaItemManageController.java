@@ -1,6 +1,5 @@
 package com.ts.server.ods.evaluation.controller.manage;
 
-import com.ts.server.ods.BaseException;
 import com.ts.server.ods.common.excel.ExcelReader;
 import com.ts.server.ods.controller.form.BatchDeleteForm;
 import com.ts.server.ods.controller.vo.OkVo;
@@ -8,11 +7,10 @@ import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.evaluation.controller.manage.form.EvaItemSaveForm;
 import com.ts.server.ods.evaluation.controller.manage.form.EvaItemUpdateForm;
+import com.ts.server.ods.evaluation.controller.manage.logger.EvaItemLogDetailBuilder;
 import com.ts.server.ods.evaluation.domain.EvaItem;
 import com.ts.server.ods.evaluation.service.EvaItemService;
-import com.ts.server.ods.logger.service.OptLogService;
-import com.ts.server.ods.security.Credential;
-import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -39,38 +37,30 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/manage/evaluation/item")
-@Api(value = "/manage/evaluation/item", tags = "评测指标API接口")
+@RequestMapping("/manage/evaItem")
+@Api(value = "/manage/evaItem", tags = "评测指标API接口")
 public class EvaItemManageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaItemManageController.class);
     private final EvaItemService service;
-    private final OptLogService optLogService;
 
     @Autowired
-    public EvaItemManageController(EvaItemService service, OptLogService optLogService) {
+    public EvaItemManageController(EvaItemService service) {
         this.service = service;
-        this.optLogService = optLogService;
     }
 
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "新增评测指标", buildDetail = EvaItemLogDetailBuilder.SaveBuilder.class)
     @ApiOperation("新增评测指标")
     public ResultVo<EvaItem> save(@Valid @RequestBody EvaItemSaveForm form){
         EvaItem t = service.save(form.toDomain());
-
-        optLogService.save("新增评测指标", new String[]{"编号", "测评指标编号"},
-                new String[]{t.getId(), t.getNum()}, getCredential().getUsername());
-
         return ResultVo.success(t);
     }
 
     @PutMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改评测指标", buildDetail = EvaItemLogDetailBuilder.UpdateBuilder.class)
     @ApiOperation("修改评测指标")
     public ResultVo<EvaItem> update(@Valid @RequestBody EvaItemUpdateForm form){
         EvaItem t = service.update(form.toDomain());
-
-        optLogService.save("修改评测指标", new String[]{"编号", "测评指标编号"},
-                new String[]{t.getId(), t.getNum()}, getCredential().getUsername());
-
         return ResultVo.success(t);
     }
 
@@ -81,20 +71,15 @@ public class EvaItemManageController {
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改评测指标", buildDetail = EvaItemLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除评测指标")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
-        EvaItem t = service.get(id);
-
         boolean ok = service.delete(id);
-        if(ok){
-            optLogService.save("删除评测指标", new String[]{"编号", "测评指标编号"},
-                    new String[]{t.getId(), t.getNum()}, getCredential().getUsername());
-        }
-
         return ResultVo.success(new OkVo(ok));
     }
 
     @PutMapping(value = "batchDelete", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "批量删除指标", buildDetail = EvaItemLogDetailBuilder.BatchDeleteBuilder.class)
     @ApiOperation("批量删除指标")
     public ResultVo<OkVo> batchDelete(@Validated @RequestBody BatchDeleteForm form){
         for(String id: form.getIds()){
@@ -104,6 +89,7 @@ public class EvaItemManageController {
     }
 
     @PostMapping(value = "import", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "导入测评指标", buildDetail = EvaItemLogDetailBuilder.ImportBuilder.class)
     @ApiOperation("导入测评指标")
     public ResultVo<OkVo> importItem(@RequestParam(value = "file") @ApiParam(value = "上传文件", required = true) MultipartFile file,
                                      @RequestParam(value = "evaId") @ApiParam(value = "测评编号", required = true) String evaId){
@@ -112,10 +98,6 @@ public class EvaItemManageController {
 
         try(InputStream inputStream= file.getInputStream()){
             reader.read(inputStream);
-
-            optLogService.save("导入测评指标", new String[]{"测评编号"},
-                    new String[]{evaId}, getCredential().getUsername());
-
             return ResultVo.success(new OkVo(true));
         }catch (IOException e){
             LOGGER.error("Import item fail throw={}", e.getMessage());
@@ -175,10 +157,6 @@ public class EvaItemManageController {
         return new ResultPageVo.Builder<>(page, rows, service.query( evaId, num, require,page * rows, rows))
                 .count(isCount, () -> service.count(evaId, num, require))
                 .build();
-    }
-
-    private Credential getCredential(){
-        return CredentialContextUtils.getCredential().orElseThrow(() -> new BaseException("用户未授权"));
     }
 
 }

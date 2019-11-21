@@ -1,4 +1,4 @@
-package com.ts.server.ods.controller.main;
+package com.ts.server.ods.controller.main.code;
 
 import com.ts.server.ods.controller.main.vo.CodeVo;
 import com.ts.server.ods.controller.vo.ResultVo;
@@ -27,8 +27,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/")
-@Api(value = "/", tags = "验证码API接口")
+@RequestMapping("/code")
+@Api(value = "/code", tags = "验证码API接口")
 public class CodeController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeController.class);
 
@@ -39,13 +39,13 @@ public class CodeController {
         this.kaptchaService = kaptchaService;
     }
 
-    @RequestMapping(value = "codeKey", produces = APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "key", produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("创建验证码key")
     public ResultVo<CodeVo> codeKey(){
         return ResultVo.success(new CodeVo(StringUtils.remove(UUID.randomUUID().toString(), "-")));
     }
 
-    @GetMapping(value = "codeImage")
+    @GetMapping(value = "image")
     @ApiOperation("得到验证码")
     public void codeImage(@RequestParam("codeKey")String codeKey, HttpServletResponse response) {
         response.setDateHeader("Expires", 0);
@@ -56,6 +56,7 @@ public class CodeController {
 
         try(OutputStream outputStream = response.getOutputStream()){
             kaptchaService.writCodeImage(codeKey, outputStream);
+            outputStream.flush();
         }catch (IOException e){
             LOGGER.error("Create cod fail error={}", e.getMessage());
             response.setStatus(400);

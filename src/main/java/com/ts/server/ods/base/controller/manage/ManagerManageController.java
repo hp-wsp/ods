@@ -1,17 +1,15 @@
 package com.ts.server.ods.base.controller.manage;
 
-import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.controller.manage.form.ManagerSaveForm;
 import com.ts.server.ods.base.controller.manage.form.ManagerUpdateForm;
 import com.ts.server.ods.base.controller.manage.form.PasswordResetForm;
+import com.ts.server.ods.base.controller.manage.logger.ManagerLogDetailBuilder;
 import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.base.service.ManagerService;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
-import com.ts.server.ods.logger.service.OptLogService;
-import com.ts.server.ods.security.Credential;
-import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,53 +20,44 @@ import javax.validation.Valid;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
+/**
+ * 管理员管理API接口
+ *
+ * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
+ */
 @RestController
 @RequestMapping("/manage/manager")
 @Api(value = "/manage/manager", tags = "管理员管理API接口")
 public class ManagerManageController {
 
     private final ManagerService service;
-    private final OptLogService optLogService;
 
     @Autowired
-    public ManagerManageController(ManagerService service, OptLogService optLogService) {
+    public ManagerManageController(ManagerService service) {
         this.service = service;
-        this.optLogService = optLogService;
     }
 
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "新增管理员", buildDetail = ManagerLogDetailBuilder.SaveBuilder.class)
     @ApiOperation("新增管理员")
     public ResultVo<Manager> save(@Valid @RequestBody ManagerSaveForm form){
         Manager manager = service.save(form.toDomain());
-
-        optLogService.save("新增管理员", new String[]{"编号", "用户名"},
-                new String[]{manager.getId(), manager.getName()}, getCredential().getUsername());
-
         return ResultVo.success(manager);
     }
 
     @PutMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改管理员信息", buildDetail = ManagerLogDetailBuilder.UpdateBuilder.class)
     @ApiOperation("修改管理员信息")
     public ResultVo<Manager> update(@Valid @RequestBody ManagerUpdateForm form){
         Manager manager = service.update(form.toDomain());
-
-        optLogService.save("修改管理员", new String[]{"编号", "用户名"},
-                new String[]{manager.getId(), manager.getName()}, getCredential().getUsername());
-
         return ResultVo.success(manager);
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改管理员信息", buildDetail = ManagerLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除管理员")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
-        Manager manager = service.get(id);
-
         boolean ok = service.delete(id);
-        if(ok){
-            optLogService.save("删除管理员", new String[]{"编号", "用户名"},
-                    new String[]{manager.getId(), manager.getName()}, getCredential().getUsername());
-        }
-
         return ResultVo.success(new OkVo(ok));
     }
 
@@ -79,16 +68,10 @@ public class ManagerManageController {
     }
 
     @PutMapping(value = "resetPassword", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @ApiOperation("重置密码")
+    @EnableApiLogger(name = "重置管理员密码", buildDetail = ManagerLogDetailBuilder.ResetPasswordBuilder.class)
+    @ApiOperation("重置管理员密码")
     public ResultVo<OkVo> resetPassword(@Valid @RequestBody PasswordResetForm form){
-        Manager manager = service.get(form.getId());
-
         boolean ok = service.resetPassword(form.getId(), form.getNewPassword());
-        if(ok){
-            optLogService.save("重置管理员密码", new String[]{"编号", "用户名"},
-                    new String[]{manager.getId(), manager.getName()}, getCredential().getUsername());
-        }
-
         return ResultVo.success(new OkVo(ok));
     }
 
@@ -103,10 +86,6 @@ public class ManagerManageController {
         return new ResultPageVo.Builder<>(page, rows, service.query( username, page * rows, rows))
                 .count(isCount, () -> service.count( username))
                 .build();
-    }
-
-    private Credential getCredential(){
-        return CredentialContextUtils.getCredential().orElseThrow(() -> new BaseException("用户未授权"));
     }
 }
 

@@ -1,4 +1,4 @@
-package com.ts.server.ods.controller.main;
+package com.ts.server.ods.controller.main.resource;
 
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.domain.Resource;
@@ -23,13 +23,13 @@ import java.net.URLEncoder;
 import java.util.*;
 
 /**
- * 基础API接口，基础API接口需要授权
+ * 资源API接口
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/")
-@Api(value = "/", tags = "基础API接口")
+@RequestMapping("/resource")
+@Api(value = "/resource", tags = "资源API接口")
 public class ResourceController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceController.class);
