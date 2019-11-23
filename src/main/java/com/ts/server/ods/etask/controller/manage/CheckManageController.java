@@ -5,6 +5,7 @@ import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.etask.controller.manage.form.GradeForm;
+import com.ts.server.ods.etask.controller.manage.logger.CheckLogDetailBuilder;
 import com.ts.server.ods.etask.controller.manage.vo.TaskCardVo;
 import com.ts.server.ods.etask.domain.Declaration;
 import com.ts.server.ods.etask.domain.TaskCard;
@@ -13,7 +14,7 @@ import com.ts.server.ods.etask.service.DeclarationService;
 import com.ts.server.ods.etask.service.TaskCardService;
 import com.ts.server.ods.etask.service.TaskCardSmsService;
 import com.ts.server.ods.etask.service.TaskItemService;
-import com.ts.server.ods.logger.service.OptLogService;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
 import io.swagger.annotations.Api;
@@ -49,36 +50,30 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 @RestController
 @RequestMapping("/manage/check")
 @Api(value = "/manage/check", tags = "评分API接口")
-public class GradeManageController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GradeManageController.class);
+public class CheckManageController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckManageController.class);
 
     private final TaskCardService cardService;
     private final TaskItemService itemService;
     private final DeclarationService decService;
     private final TaskCardSmsService taskCardSmsService;
-    private final OptLogService optLogService;
 
     @Autowired
-    public GradeManageController(TaskCardService cardService, TaskItemService itemService,
-                                 DeclarationService decService, TaskCardSmsService taskCardSmsService,
-                                 OptLogService optLogService) {
+    public CheckManageController(TaskCardService cardService, TaskItemService itemService,
+                                 DeclarationService decService, TaskCardSmsService taskCardSmsService) {
 
         this.cardService = cardService;
         this.itemService = itemService;
         this.decService = decService;
         this.taskCardSmsService = taskCardSmsService;
-        this.optLogService = optLogService;
     }
 
     @PutMapping(value = "grade", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "打分", buildDetail = CheckLogDetailBuilder.GradeBuilder.class)
     @ApiOperation("打分")
     public ResultVo<TaskItem> grade(@Valid @RequestBody GradeForm form){
         Credential credential = getCredential();
         TaskItem item = itemService.grade(form.getId(), form.getLevel(), form.getScore(), form.getRemark(), credential.getId());
-
-        optLogService.save("打分", new String[]{"编号", "测评指标编号", "打分"},
-                new String[]{item.getId(), item.getEvaNum(), item.getGradeLevel()}, getCredential().getUsername());
-
         return ResultVo.success(item);
     }
 
@@ -101,6 +96,7 @@ public class GradeManageController {
     }
 
     @PutMapping(value = "back/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "退回", buildDetail = CheckLogDetailBuilder.BackBuilder.class)
     @ApiOperation("退回")
     public ResultVo<TaskCard> back(@PathVariable("id")String id){
         Credential credential = getCredential();
@@ -111,15 +107,12 @@ public class GradeManageController {
         }
 
         TaskCard newCard = cardService.back(id, credential.getUsername());
-
-        optLogService.save("退回评测", new String[]{"编号", "单位"},
-                new String[]{newCard.getId(), newCard.getCompanyName()}, getCredential().getUsername());
-
         taskCardSmsService.back(newCard);
         return ResultVo.success(newCard);
     }
 
     @PutMapping(value = "cancelBack/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "撤回退回", buildDetail = CheckLogDetailBuilder.CancelBackBuilder.class)
     @ApiOperation("撤回退回")
     public ResultVo<TaskCard> cancelBack(@PathVariable("id")String id){
         Credential credential = getCredential();
@@ -130,15 +123,12 @@ public class GradeManageController {
         }
 
         TaskCard newCard = cardService.cancelBack(id, credential.getUsername());
-
-        optLogService.save("撤回退回评测", new String[]{"编号", "单位"},
-                new String[]{newCard.getId(), newCard.getCompanyName()}, getCredential().getUsername());
-
         taskCardSmsService.cancelBack(newCard);
         return ResultVo.success(newCard);
     }
 
     @PutMapping(value = "finish/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "撤回退回", buildDetail = CheckLogDetailBuilder.FinishBuilder.class)
     @ApiOperation("完成")
     public ResultVo<TaskCard> finish(@PathVariable("id")String id){
         Credential credential = getCredential();
@@ -149,9 +139,6 @@ public class GradeManageController {
         }
 
         TaskCard newCard = cardService.finish(id, credential.getUsername());
-        optLogService.save("评分完成", new String[]{"编号", "单位"},
-                new String[]{newCard.getId(), newCard.getCompanyName()}, getCredential().getUsername());
-
         return ResultVo.success(newCard);
     }
 

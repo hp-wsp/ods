@@ -42,11 +42,16 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
+/**
+ * 测评汇编API接口
+ *
+ * <a href="mailto:hhywangwei@gmail.com">WangWei</a>
+ */
 @RestController
-@RequestMapping("/manage/bi/evaluation")
-@Api(value = "/manage/bi/evaluation", tags = "评测汇编API接口")
-public class EvaluationBiManageController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationBiManageController.class);
+@RequestMapping("/manage/evaBi")
+@Api(value = "/manage/evaBi", tags = "评测汇编API接口")
+public class EvaBiManageController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EvaBiManageController.class);
     private final EvaluationService evaluationService;
     private final EvaItemService evaItemService;
     private final DeclarationService declarationService;
@@ -56,10 +61,10 @@ public class EvaluationBiManageController {
     private final OdsProperties properties;
 
     @Autowired
-    public EvaluationBiManageController(EvaluationService evaluationService, EvaItemService evaItemService,
-                                        DeclarationService declarationService, ResourceService resourceService,
-                                        TaskCardService taskCardService, OdsExecutorService executorService,
-                                        OdsProperties properties) {
+    public EvaBiManageController(EvaluationService evaluationService, EvaItemService evaItemService,
+                                 DeclarationService declarationService, ResourceService resourceService,
+                                 TaskCardService taskCardService, OdsExecutorService executorService,
+                                 OdsProperties properties) {
 
         this.evaluationService = evaluationService;
         this.evaItemService = evaItemService;

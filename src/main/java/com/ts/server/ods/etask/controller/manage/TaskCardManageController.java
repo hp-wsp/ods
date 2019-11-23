@@ -1,16 +1,14 @@
 package com.ts.server.ods.etask.controller.manage;
 
-import com.ts.server.ods.BaseException;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.etask.controller.manage.form.TaskCardSaveForm;
 import com.ts.server.ods.etask.controller.manage.form.TaskCardUpdateForm;
+import com.ts.server.ods.etask.controller.manage.logger.TaskCardLogDetailBuilder;
 import com.ts.server.ods.etask.domain.TaskCard;
 import com.ts.server.ods.etask.service.TaskCardService;
-import com.ts.server.ods.logger.service.OptLogService;
-import com.ts.server.ods.security.Credential;
-import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -26,50 +24,37 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/manage/task/card")
-@Api(value = "/manage/task/card", tags = "评测卡API接口")
+@RequestMapping("/manage/card")
+@Api(value = "/manage/card", tags = "评测卡API接口")
 public class TaskCardManageController {
     private final TaskCardService service;
-    private final OptLogService optLogService;
 
     @Autowired
-    public TaskCardManageController(TaskCardService service, OptLogService optLogService) {
+    public TaskCardManageController(TaskCardService service) {
         this.service = service;
-        this.optLogService = optLogService;
     }
 
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "新增评测卡", buildDetail = TaskCardLogDetailBuilder.SaveBuilder.class)
     @ApiOperation("新增评测卡")
     public ResultVo<TaskCard> save(@Valid @RequestBody TaskCardSaveForm form){
         TaskCard card = service.save(form.toDomain());
-
-        optLogService.save("新增评测卡", new String[]{"编号", "单位"},
-                new String[]{card.getId(), card.getCompanyName()}, getCredential().getUsername());
-
         return ResultVo.success(card);
     }
 
     @PutMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改评测卡", buildDetail = TaskCardLogDetailBuilder.UpdateBuilder.class)
     @ApiOperation("修改评测卡")
     public ResultVo<TaskCard> update(@Valid @RequestBody TaskCardUpdateForm form){
         TaskCard card = service.update(form.toDomain());
-
-        optLogService.save("修改评测卡", new String[]{"编号", "单位"},
-                new String[]{card.getId(), card.getCompanyName()}, getCredential().getUsername());
-
         return ResultVo.success(card);
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改评测卡", buildDetail = TaskCardLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除评测卡")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
-        TaskCard card = service.get(id);
-
         boolean ok = service.delete(id);
-        if(ok){
-            optLogService.save("删除评测卡", new String[]{"编号", "单位"},
-                    new String[]{card.getId(), card.getCompanyName()}, getCredential().getUsername());
-        }
         return ResultVo.success(new OkVo(ok));
     }
 
@@ -93,9 +78,5 @@ public class TaskCardManageController {
         return new ResultPageVo.Builder<>(page, rows, service.query( evaId, companyName, assUsername, decUsername,page * rows, rows))
                 .count(isCount, () -> service.count(evaId, companyName, assUsername, decUsername))
                 .build();
-    }
-
-    private Credential getCredential(){
-        return CredentialContextUtils.getCredential().orElseThrow(() -> new BaseException("用户未授权"));
     }
 }
