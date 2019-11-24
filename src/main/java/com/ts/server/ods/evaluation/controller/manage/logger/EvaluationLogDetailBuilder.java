@@ -2,9 +2,7 @@ package com.ts.server.ods.evaluation.controller.manage.logger;
 
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultVo;
-import com.ts.server.ods.evaluation.controller.manage.form.EvaItemUpdateForm;
 import com.ts.server.ods.evaluation.controller.manage.form.EvaluationUpdateForm;
-import com.ts.server.ods.evaluation.domain.EvaItem;
 import com.ts.server.ods.evaluation.domain.Evaluation;
 import com.ts.server.ods.logger.aop.annotation.ApiLogDetailBuilder;
 import org.aspectj.lang.JoinPoint;
@@ -20,7 +18,7 @@ public class EvaluationLogDetailBuilder {
     /**
      * 构建删除评测日志
      */
-    public static class DeleteBuilder implements ApiLogDetailBuilder {
+    public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -34,7 +32,7 @@ public class EvaluationLogDetailBuilder {
     /**
      * 构建新增评测日志
      */
-    public static class SaveBuilder implements ApiLogDetailBuilder {
+    public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -47,7 +45,7 @@ public class EvaluationLogDetailBuilder {
     /**
      * 构建修改评测日志
      */
-    public static class UpdateBuilder implements ApiLogDetailBuilder {
+    public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
             EvaluationUpdateForm form = (EvaluationUpdateForm) joinPoint.getArgs()[0];
@@ -58,7 +56,7 @@ public class EvaluationLogDetailBuilder {
     /**
      * 构建打开测评日志
      */
-    public static class OpenBuilder implements ApiLogDetailBuilder {
+    public final static class OpenBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -71,7 +69,7 @@ public class EvaluationLogDetailBuilder {
     /**
      * 构建打开测评日志
      */
-    public static class CloseBuilder implements ApiLogDetailBuilder {
+    public final static class CloseBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -84,7 +82,7 @@ public class EvaluationLogDetailBuilder {
     /**
      * 构建打开测评日志
      */
-    public static class SendSmsBuilder implements ApiLogDetailBuilder {
+    public final static class SendSmsBuilder implements ApiLogDetailBuilder {
         @Override
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
             String id = (String)joinPoint.getArgs()[0];

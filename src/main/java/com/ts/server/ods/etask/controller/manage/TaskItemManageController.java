@@ -1,11 +1,13 @@
 package com.ts.server.ods.etask.controller.manage;
 
-import com.ts.server.ods.base.domain.GradeRate;
 import com.ts.server.ods.base.service.GradeRateService;
-import com.ts.server.ods.common.excel.ExcelReader;
+import com.ts.server.ods.common.excel.reader.ExcelReader;
+import com.ts.server.ods.common.excel.reader.ReadResult;
+import com.ts.server.ods.controller.vo.ImportVo;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
+import com.ts.server.ods.etask.controller.manage.excel.TaskItemExcelReader;
 import com.ts.server.ods.etask.controller.manage.form.TaskItemSaveForm;
 import com.ts.server.ods.etask.controller.manage.form.TaskItemUpdateForm;
 import com.ts.server.ods.etask.controller.manage.logger.TaskItemLogDetailBuilder;
@@ -18,10 +20,6 @@ import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +30,7 @@ import javax.validation.Valid;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -94,83 +90,23 @@ public class TaskItemManageController {
     @PostMapping(value = "import", produces = APPLICATION_JSON_UTF8_VALUE)
     @EnableApiLogger(name = "删除评测卡指标", buildDetail = TaskItemLogDetailBuilder.ImportBuilder.class)
     @ApiOperation("导入评测卡指标")
-    public ResultVo<OkVo> importItem(@RequestParam(value = "file") @ApiParam(value = "上传文件", required = true) MultipartFile file,
+    public ResultVo<ImportVo> importItem(@RequestParam(value = "file") @ApiParam(value = "上传文件", required = true) MultipartFile file,
                                      @RequestParam(value = "cardId") @ApiParam(value = "评测卡编号", required = true) String cardId){
 
-        ExcelReader reader = buildImportExcelReader(cardId);
+        TaskCard card = cardService.get(cardId);
+        ExcelReader reader = new TaskItemExcelReader(card, service, rateService);
 
         try(InputStream inputStream= file.getInputStream()){
-            reader.read(inputStream);
+            ReadResult result = reader.read(inputStream);
             cardService.updateItemCount(cardId);
             cardService.updateScore(cardId);
-
-            return ResultVo.success(new OkVo(true));
+            int errorCount = result.getErrorRows() == null? 0 : result.getErrorRows().size();
+            ImportVo vo = new ImportVo(result.getCount(), errorCount, result.getErrorRows());
+            return ResultVo.success(vo);
         }catch (IOException e){
             LOGGER.error("Import item fail throw={}", e.getMessage());
             return ResultVo.error(254, "导入任务卡失败");
         }
-    }
-
-    private ExcelReader buildImportExcelReader(String cardId){
-        Map<String, Integer> gradeRates = gradeRates();
-        TaskCard card = cardService.get(cardId);
-        service.deleteByCardId(cardId);
-        return new ExcelReader((i, r) -> {
-            String num = getCellContent(r, 1);
-
-            boolean isHeard = StringUtils.equals(StringUtils.trim(StringUtils.remove(num, ' ')), "指标");
-            if(isHeard){
-                return ;
-            }
-
-            if(StringUtils.isBlank(num)){
-                return ;
-            }
-
-            TaskItem t = new TaskItem();
-            t.setCardId(card.getId());
-            t.setEvaNum(num);
-            t.setRequireContent(getCellContent(r, 2));
-            int score= (int)Math.round(r.getCell(3).getNumericCellValue() * 100);
-            t.setScore(score);
-            t.setGradeContent(getCellContent(r, 4));
-            String resultStr = getCellContent(r, 5);
-            LOGGER.debug("Import excel index={},result={}", i, resultStr);
-            t.setResults(buildResults(resultStr, t.getScore(), gradeRates));
-            t.setRemark(getCellContent(r, 6));
-            t.setShowOrder(i);
-
-            service.importItem(card, t);
-        });
-    }
-
-    private Map<String, Integer> gradeRates(){
-        return rateService.queryAll().stream().collect(Collectors.groupingBy(GradeRate::getLevel))
-                .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0).getRate()));
-    }
-
-    private String getCellContent(Row row, int col){
-        Cell cell = row.getCell(col);
-        if(cell == null){
-            return "";
-        }
-        RichTextString text = cell.getRichStringCellValue();
-        if(text == null || StringUtils.isBlank(text.getString())){
-            return "";
-        }
-        String s = text.getString();
-        s = StringUtils.replaceChars(s, '\n', ' ');
-        s = StringUtils.replaceChars(s, '\t', ' ');
-        s = StringUtils.trim(s);
-        return s;
-    }
-
-    private List<TaskItem.TaskItemResult> buildResults(String resultStr, int score, Map<String, Integer> gradeRates){
-        return Arrays.stream(StringUtils.split(resultStr, " "))
-                .map(StringUtils::trim)
-                .filter(e -> e.length() > 0)
-                .map(e -> new TaskItem.TaskItemResult(e, (score * gradeRates.getOrDefault(e, 0))/100))
-                .collect(Collectors.toList());
     }
 
     @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)

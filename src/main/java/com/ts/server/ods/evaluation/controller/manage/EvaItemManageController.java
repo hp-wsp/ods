@@ -1,10 +1,13 @@
 package com.ts.server.ods.evaluation.controller.manage;
 
-import com.ts.server.ods.common.excel.ExcelReader;
+import com.ts.server.ods.common.excel.reader.ExcelReader;
+import com.ts.server.ods.common.excel.reader.ReadResult;
 import com.ts.server.ods.controller.form.BatchDeleteForm;
+import com.ts.server.ods.controller.vo.ImportVo;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
+import com.ts.server.ods.evaluation.controller.manage.excel.EvaItemExcelReader;
 import com.ts.server.ods.evaluation.controller.manage.form.EvaItemSaveForm;
 import com.ts.server.ods.evaluation.controller.manage.form.EvaItemUpdateForm;
 import com.ts.server.ods.evaluation.controller.manage.logger.EvaItemLogDetailBuilder;
@@ -14,8 +17,6 @@ import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import javax.validation.Valid;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
@@ -91,57 +91,19 @@ public class EvaItemManageController {
     @PostMapping(value = "import", produces = APPLICATION_JSON_UTF8_VALUE)
     @EnableApiLogger(name = "导入测评指标", buildDetail = EvaItemLogDetailBuilder.ImportBuilder.class)
     @ApiOperation("导入测评指标")
-    public ResultVo<OkVo> importItem(@RequestParam(value = "file") @ApiParam(value = "上传文件", required = true) MultipartFile file,
-                                     @RequestParam(value = "evaId") @ApiParam(value = "测评编号", required = true) String evaId){
+    public ResultVo<ImportVo> importItem(@RequestParam(value = "file") @ApiParam(value = "上传文件", required = true) MultipartFile file,
+                                         @RequestParam(value = "evaId") @ApiParam(value = "测评编号", required = true) String evaId){
 
-        ExcelReader reader = buildImportExcelReader(evaId);
-
+        ExcelReader reader = new EvaItemExcelReader(evaId, service);
         try(InputStream inputStream= file.getInputStream()){
-            reader.read(inputStream);
-            return ResultVo.success(new OkVo(true));
+            ReadResult result = reader.read(inputStream);
+            int errorCount = result.getErrorRows() == null? 0 : result.getErrorRows().size();
+            ImportVo vo = new ImportVo(result.getCount(), errorCount, result.getErrorRows());
+            return ResultVo.success(vo);
         }catch (IOException e){
             LOGGER.error("Import item fail throw={}", e.getMessage());
             return ResultVo.error(253, "导入测评指标失败");
         }
-    }
-
-    private ExcelReader buildImportExcelReader(String evaId){
-        return new ExcelReader((i, r) -> {
-            String num = getCellContent(r, 1);
-
-            boolean isHeader = i == 0 && StringUtils.equals(StringUtils.trim(StringUtils.remove(num, ' ')), "指标");
-            if(isHeader){
-                return ;
-            }
-
-            if(StringUtils.isBlank(num)){
-                LOGGER.warn("Import row num is blank");
-                return ;
-            }
-
-            EvaItem t = new EvaItem();
-            t.setEvaId(evaId);
-            t.setNum(num);
-            t.setRequire(getCellContent(r, 2));
-            t.setGrade(getCellContent(r, 3));
-            String resultStr = getCellContent(r, 4);
-            LOGGER.debug("Import excel index={},result={}", i, resultStr);
-            String[] results = Arrays.stream(StringUtils.split(resultStr, " ")).map(StringUtils::trim)
-                    .filter(e -> e.length() > 0).toArray(String[]::new);
-            t.setResults(results);
-            t.setRemark(getCellContent(r, 5));
-
-            EvaItem item = service.importItem(t);
-            LOGGER.debug("Import item={}", item);
-        });
-    }
-
-    private String getCellContent(Row row, int col){
-        String s = row.getCell(col).getRichStringCellValue().getString();
-        s = StringUtils.replaceChars(s, '\n', ' ');
-        s = StringUtils.replaceChars(s, '\t', ' ');
-        s = StringUtils.trim(s);
-        return s;
     }
 
     @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)

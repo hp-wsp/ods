@@ -2,25 +2,17 @@ package com.ts.server.ods;
 
 import com.ts.server.ods.base.domain.GradeRate;
 import com.ts.server.ods.base.service.GradeRateService;
-import com.ts.server.ods.common.excel.ExcelReader;
+import com.ts.server.ods.common.excel.reader.ExcelReader;
 import com.ts.server.ods.etask.domain.TaskCard;
 import com.ts.server.ods.etask.domain.TaskItem;
 import com.ts.server.ods.etask.service.TaskCardService;
 import com.ts.server.ods.etask.service.TaskItemService;
-import com.ts.server.ods.evaluation.domain.EvaItem;
-import com.ts.server.ods.evaluation.service.EvaItemService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -50,30 +42,30 @@ public class UpdateTest {
 //        }
     }
 
-    private ExcelReader buildImportExcelReader(String cardId){
-        Map<String, Integer> gradeRates = gradeRates();
-        TaskCard card = cardService.get(cardId);
-        return new ExcelReader((i, r) -> {
-            boolean isHeard = StringUtils.equals(StringUtils.remove(getCellContent(r, 1), ' '), "指标");
-
-            if(isHeard){
-                return ;
-            }
-
-            TaskItem t = new TaskItem();
-            t.setCardId(card.getId());
-            t.setEvaNum(getCellContent(r, 1));
-            t.setRequireContent(getCellContent(r, 2));
-            t.setScore((int)r.getCell(3).getNumericCellValue());
-            t.setGradeContent(getCellContent(r, 4));
-            String resultStr = getCellContent(r, 5);
-            LOGGER.debug("Import excel index={},result={}", i, resultStr);
-            t.setResults(buildResults(resultStr, t.getScore(), gradeRates));
-            t.setRemark(getCellContent(r, 6));
-
-            service.importItem(card, t);
-        });
-    }
+//    private ExcelReader buildImportExcelReader(String cardId){
+////        Map<String, Integer> gradeRates = gradeRates();
+////        TaskCard card = cardService.get(cardId);
+////        return new ExcelReader((i, r) -> {
+////            boolean isHeard = StringUtils.equals(StringUtils.remove(getCellContent(r, 1), ' '), "指标");
+////
+////            if(isHeard){
+////                return ;
+////            }
+////
+////            TaskItem t = new TaskItem();
+////            t.setCardId(card.getId());
+////            t.setEvaNum(getCellContent(r, 1));
+////            t.setRequireContent(getCellContent(r, 2));
+////            t.setScore((int)r.getCell(3).getNumericCellValue());
+////            t.setGradeContent(getCellContent(r, 4));
+////            String resultStr = getCellContent(r, 5);
+////            LOGGER.debug("Import excel index={},result={}", i, resultStr);
+////            t.setResults(buildResults(resultStr, t.getScore(), gradeRates));
+////            t.setRemark(getCellContent(r, 6));
+////
+////            service.importItem(card, t);
+////        });
+//    }
 
     private Map<String, Integer> gradeRates(){
         return rateService.queryAll().stream().collect(Collectors.groupingBy(GradeRate::getLevel))

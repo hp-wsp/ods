@@ -18,7 +18,7 @@ public class MemberLogDetailBuilder {
     /**
      * 构建删除申报员日志
      */
-    public static class DeleteBuilder implements ApiLogDetailBuilder {
+    public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -32,7 +32,7 @@ public class MemberLogDetailBuilder {
     /**
      * 构建新增申报员日志
      */
-    public static class SaveBuilder implements ApiLogDetailBuilder {
+    public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -45,7 +45,7 @@ public class MemberLogDetailBuilder {
     /**
      * 构建修改申报员日志
      */
-    public static class UpdateBuilder implements ApiLogDetailBuilder {
+    public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
             MemberUpdateForm form = (MemberUpdateForm) joinPoint.getArgs()[0];
@@ -56,7 +56,7 @@ public class MemberLogDetailBuilder {
     /**
      * 构建重置密码日志
      */
-    public static class ResetPasswordBuilder implements ApiLogDetailBuilder {
+    public final static class ResetPasswordBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {

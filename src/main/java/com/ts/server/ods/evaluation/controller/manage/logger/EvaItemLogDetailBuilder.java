@@ -20,7 +20,7 @@ public class EvaItemLogDetailBuilder {
     /**
      * 构建删除评测指标日志
      */
-    public static class DeleteBuilder implements ApiLogDetailBuilder {
+    public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -47,7 +47,7 @@ public class EvaItemLogDetailBuilder {
     /**
      * 构建修改评测指标日志
      */
-    public static class UpdateBuilder implements ApiLogDetailBuilder {
+    public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
             EvaItemUpdateForm form = (EvaItemUpdateForm) joinPoint.getArgs()[0];
@@ -58,7 +58,7 @@ public class EvaItemLogDetailBuilder {
     /**
      * 构建批量删除评测指标日志
      */
-    public static class BatchDeleteBuilder implements ApiLogDetailBuilder {
+    public final static class BatchDeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
@@ -72,7 +72,7 @@ public class EvaItemLogDetailBuilder {
     /**
      * 构建导入评测指标日志
      */
-    public static class ImportBuilder implements ApiLogDetailBuilder {
+    public final static class ImportBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {

@@ -3,7 +3,7 @@ package com.ts.server.ods.evaluation.controller.manage;
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.OdsProperties;
 import com.ts.server.ods.base.service.ResourceService;
-import com.ts.server.ods.common.excel.ExcelWriter;
+import com.ts.server.ods.common.excel.writer.ExcelWriter;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
