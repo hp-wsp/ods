@@ -2,11 +2,14 @@ package com.ts.server.ods.base.controller.manage;
 
 import com.ts.server.ods.base.controller.manage.form.GradeRateSaveForm;
 import com.ts.server.ods.base.controller.manage.form.GradeRateUpdateForm;
+import com.ts.server.ods.base.controller.manage.logger.GradeRateLogDetailBuilder;
 import com.ts.server.ods.base.domain.GradeRate;
 import com.ts.server.ods.base.service.GradeRateService;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
+import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,6 +27,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/gradeRate")
+@ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/gradeRate", tags = "得分比率设置API接口")
 public class GradeRateMangeController {
     private final GradeRateService service;
@@ -34,12 +38,14 @@ public class GradeRateMangeController {
     }
 
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "新增得分比率", buildDetail = GradeRateLogDetailBuilder.SaveBuilder.class)
     @ApiOperation("新增得分比率")
     public ResultVo<GradeRate> save(@Valid @RequestBody GradeRateSaveForm form){
         return ResultVo.success(service.save(form.toDomain()));
     }
 
     @PutMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "修改得分比率", buildDetail = GradeRateLogDetailBuilder.UpdateBuilder.class)
     @ApiOperation("修改得分比率")
     public ResultVo<GradeRate> update(@Valid @RequestBody GradeRateUpdateForm form){
         return ResultVo.success(service.update(form.toDomain()));
@@ -52,6 +58,7 @@ public class GradeRateMangeController {
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "删除得分比率", buildDetail = GradeRateLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除得分比率")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
         return ResultVo.success(new OkVo(service.delete(id)));

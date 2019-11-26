@@ -17,6 +17,7 @@ import com.ts.server.ods.etask.service.TaskItemService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -49,6 +50,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/check")
+@ApiACL({"ROLE_GRADE"})
 @Api(value = "/manage/check", tags = "评分API接口")
 public class CheckManageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CheckManageController.class);

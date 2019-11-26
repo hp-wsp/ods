@@ -10,6 +10,7 @@ import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -29,6 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/member")
+@ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/member", tags = "管理申报员API接口")
 public class MemberManageController {
     private final MemberService service;

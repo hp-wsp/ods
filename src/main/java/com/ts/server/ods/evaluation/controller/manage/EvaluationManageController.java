@@ -18,6 +18,7 @@ import com.ts.server.ods.exec.OdsExecutorService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.security.annotation.ApiACL;
 import com.ts.server.ods.sms.service.SmsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +40,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/evaluation")
+@ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/evaluation", tags = "测评API接口")
 public class EvaluationManageController {
     private final EvaluationService service;

@@ -21,7 +21,7 @@ public class AntMatcher implements AuthenticateMatcher{
 	private final PathMatcher pathMatcher;
 	private final boolean isAllMethod;
 	
-	public AntMatcher(String pattern, List<String> httpMethods, List<String> roles){
+	public AntMatcher(String pattern, List<String> httpMethods, Set<String> roles){
 		this.pattern = pattern;
 		this.httpMethods = httpMethods.stream().map(String::toUpperCase).collect(Collectors.toSet());
 		this.roles = roles.stream().map(String::toUpperCase).collect(Collectors.toSet());
@@ -41,7 +41,6 @@ public class AntMatcher implements AuthenticateMatcher{
 	}
 
 	private boolean hasRole(Set<String> roles, List<String> uRoles){
-		boolean has =  uRoles.stream().anyMatch(roles::contains);
-		return has;
+		return uRoles.stream().anyMatch(roles::contains);
 	}
 }

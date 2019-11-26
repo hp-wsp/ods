@@ -17,6 +17,7 @@ import com.ts.server.ods.evaluation.service.EvaluationService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/declare")
+@ApiACL("ROLE_DECLARATION")
 @Api(value = "/declare", tags = "申报端基础API接口")
 public class BaseDeclareController {
 

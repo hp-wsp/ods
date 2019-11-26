@@ -9,6 +9,7 @@ import com.ts.server.ods.etask.controller.manage.logger.TaskCardLogDetailBuilder
 import com.ts.server.ods.etask.domain.TaskCard;
 import com.ts.server.ods.etask.service.TaskCardService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,6 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/card")
+@ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/card", tags = "评测卡API接口")
 public class TaskCardManageController {
     private final TaskCardService service;

@@ -21,6 +21,7 @@ import com.ts.server.ods.evaluation.service.EvaItemService;
 import com.ts.server.ods.evaluation.service.EvaluationService;
 import com.ts.server.ods.evaluation.service.runner.ExportResourceRunner;
 import com.ts.server.ods.exec.OdsExecutorService;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -47,6 +48,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/evaBi")
+@ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/evaBi", tags = "评测汇编API接口")
 public class EvaBiManageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaBiManageController.class);

@@ -14,6 +14,7 @@ import com.ts.server.ods.evaluation.controller.manage.logger.EvaItemLogDetailBui
 import com.ts.server.ods.evaluation.domain.EvaItem;
 import com.ts.server.ods.evaluation.service.EvaItemService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,6 +39,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  */
 @RestController
 @RequestMapping("/manage/evaItem")
+@ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/evaItem", tags = "评测指标API接口")
 public class EvaItemManageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(EvaItemManageController.class);

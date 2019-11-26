@@ -9,6 +9,7 @@ import com.ts.server.ods.etask.service.DeclarationService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,6 +28,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
  */
 @RestController
 @RequestMapping("/declare/resource")
+@ApiACL("ROLE_DECLARATION")
 @Api(value = "/declare/resource", tags = "申报资源API接口")
 public class ResourceDecController {
     private final DeclarationService decService;
