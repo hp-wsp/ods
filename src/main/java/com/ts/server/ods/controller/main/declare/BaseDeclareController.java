@@ -3,7 +3,7 @@ package com.ts.server.ods.controller.main.declare;
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.domain.Member;
 import com.ts.server.ods.base.service.MemberService;
-import com.ts.server.ods.controller.main.declare.logger.UpdateMemberAccountLogDetailBuilder;
+import com.ts.server.ods.controller.main.declare.logger.BaseDeclareLogDetailBuilder;
 import com.ts.server.ods.controller.main.declare.form.MemberInfoForm;
 import com.ts.server.ods.controller.main.form.PasswordUpdateForm;
 import com.ts.server.ods.controller.main.vo.MainDateVo;
@@ -54,14 +54,14 @@ public class BaseDeclareController {
 
 
     @PostMapping(value = "updatePassword", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改申报员密码")
+    @EnableApiLogger(name = "修改申报员密码", buildDetail = BaseDeclareLogDetailBuilder.UpdatePasswordBuilder.class)
     @ApiOperation("修改申报员密码")
     public ResultVo<OkVo> updatePassword(@Validated @RequestBody PasswordUpdateForm form){
         return ResultVo.success(new OkVo(memberService.updatePassword(getCredential().getId(), form.getPassword(), form.getNewPassword())));
     }
 
     @PutMapping(value = "account", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员信息", buildDetail = UpdateMemberAccountLogDetailBuilder.class)
+    @EnableApiLogger(name = "修改管理员信息", buildDetail = BaseDeclareLogDetailBuilder.UpdateAccountBuilder.class)
     @ApiOperation("修改申报员信息")
     public ResultVo<Member> updateAccount(@Validated @RequestBody MemberInfoForm form){
         Member m = memberService.get(getCredential().getId());

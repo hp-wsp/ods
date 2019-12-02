@@ -25,7 +25,6 @@ import java.io.File;
     }
 
     private String getFileName(String imagePath) {
-        String n = new File(imagePath).getName();
-        return n;
+        return new File(imagePath).getName();
     }
 }

@@ -22,13 +22,13 @@ import java.util.UUID;
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
-public class Word2003ExportHtml implements WordExport {
+class Word2003ExportHtml implements WordExport {
     private static final Logger LOGGER = LoggerFactory.getLogger(Word2003ExportHtml.class);
 
     private final String rootDir;
     private final String rootUrl;
 
-    public Word2003ExportHtml(String rootDir, String rootUrl) {
+    Word2003ExportHtml(String rootDir, String rootUrl) {
         this.rootDir = rootDir;
         this.rootUrl = rootUrl;
     }

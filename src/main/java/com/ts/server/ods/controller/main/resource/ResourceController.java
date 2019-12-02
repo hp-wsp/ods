@@ -5,6 +5,7 @@ import com.ts.server.ods.base.domain.Resource;
 import com.ts.server.ods.base.service.ResourceService;
 import com.ts.server.ods.security.Credential;
 import com.ts.server.ods.security.CredentialContextUtils;
+import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/resource")
+@ApiACL
 @Api(value = "/resource", tags = "资源API接口")
 public class ResourceController {
 
@@ -43,6 +45,8 @@ public class ResourceController {
 
     @GetMapping(value = "/download/{id}")
     public ResponseEntity<FileSystemResource> download(@PathVariable("id")String id){
+
+        //TODO 实现断线重连功能
 
         Optional<Resource> optional = resourceService.get(id);
         if(!optional.isPresent()){

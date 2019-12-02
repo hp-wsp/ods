@@ -19,7 +19,7 @@ import com.ts.server.ods.evaluation.domain.EvaItem;
 import com.ts.server.ods.evaluation.domain.Evaluation;
 import com.ts.server.ods.evaluation.service.EvaItemService;
 import com.ts.server.ods.evaluation.service.EvaluationService;
-import com.ts.server.ods.evaluation.service.runner.ExportResourceRunner;
+import com.ts.server.ods.evaluation.controller.manage.runner.ExportResourceRunner;
 import com.ts.server.ods.exec.OdsExecutorService;
 import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
@@ -209,7 +209,7 @@ public class EvaBiManageController {
 
         executorService.submit(buildTaskKey(id), "测评资源导出",
                 new ExportResourceRunner(evaluationService, evaItemService,
-                        declarationService, resourceService, properties, id, password));
+                        declarationService, resourceService, properties, id));
 
         return ResultVo.success(new OkVo(true));
     }

@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
-public class Word2007ExportHtml implements WordExport {
+class Word2007ExportHtml implements WordExport {
     private static final Logger LOGGER = LoggerFactory.getLogger(Word2007ExportHtml.class);
     private static final byte[] HTML_HEAD = convertBytes("<html><head><META http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><body>");
     private static final byte[] HTML_END = convertBytes("</body></html>");
@@ -24,7 +24,7 @@ public class Word2007ExportHtml implements WordExport {
     private final String rootDir;
     private final String rootUrl;
 
-    public Word2007ExportHtml(String rootDir, String rootUrl) {
+    Word2007ExportHtml(String rootDir, String rootUrl) {
         this.rootDir = rootDir;
         this.rootUrl = rootUrl;
     }

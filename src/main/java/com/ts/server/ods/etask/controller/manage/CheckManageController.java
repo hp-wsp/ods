@@ -1,6 +1,8 @@
 package com.ts.server.ods.etask.controller.manage;
 
 import com.ts.server.ods.BaseException;
+import com.ts.server.ods.common.utils.HttpUtils;
+import com.ts.server.ods.common.zip.ZipWriter;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
 import com.ts.server.ods.controller.vo.ResultVo;
@@ -21,9 +23,6 @@ import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -206,41 +204,16 @@ public class CheckManageController {
         }
 
         try(OutputStream outputStream = response.getOutputStream();
-            ZipArchiveOutputStream zipStream = new ZipArchiveOutputStream(outputStream)){
-            String zipFilename = item.getEvaNum() + ".zip";
-            response.setHeader("Content-Disposition", "attachment; filename*=" + buildFilename(zipFilename));
-            response.setContentType("application/force-download");
+            ZipWriter zipWriter = new ZipWriter.Builder(outputStream).build()){
+            HttpUtils.setContentDisposition(response, item.getEvaNum(), "zip");
             for(Declaration t: declarations){
-                LOGGER.debug("Get declaration resources declarationId={}, path={}, filename={},",
+                LOGGER.debug("Get declaration resources declarationId={}, path={}, filename={}",
                         t.getId(), t.getPath(), t.getFileName());
-                addFileToZip(zipStream, t.getPath(), t.getFileName());
+                zipWriter.addEntry(new File(t.getPath()));
             }
-            outputStream.flush();
         }catch (IOException e){
             LOGGER.error("Downland item grade resources fail itemId={}, throw={}", itemId, e.getMessage());
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
-    }
-
-    private String buildFilename(String filename){
-        try{
-            final String charset = "UTF-8";
-            return charset + "''"+ URLEncoder.encode(filename, charset);
-        }catch (UnsupportedEncodingException e){
-            return "";
-        }
-    }
-
-    private static void addFileToZip(ZipArchiveOutputStream zOut, String path, String entryName) throws IOException {
-        File f = new File(path);
-
-        try (FileInputStream fInputStream = new FileInputStream(f)){
-            ZipArchiveEntry entry = new ZipArchiveEntry(entryName);
-            entry.setSize(f.length());
-            entry.setTime(System.currentTimeMillis());
-            zOut.putArchiveEntry(entry);
-            IOUtils.copy(fInputStream, zOut);
-            zOut.closeArchiveEntry();
         }
     }
 

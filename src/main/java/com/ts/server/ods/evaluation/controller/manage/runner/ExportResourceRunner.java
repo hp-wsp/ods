@@ -1,10 +1,11 @@
-package com.ts.server.ods.evaluation.service.runner;
+package com.ts.server.ods.evaluation.controller.manage.runner;
 
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.OdsProperties;
 import com.ts.server.ods.base.domain.Resource;
 import com.ts.server.ods.base.service.ResourceService;
 import com.ts.server.ods.common.id.IdGenerators;
+import com.ts.server.ods.common.zip.ZipWriter;
 import com.ts.server.ods.etask.domain.Declaration;
 import com.ts.server.ods.etask.service.DeclarationService;
 import com.ts.server.ods.evaluation.domain.EvaItem;
@@ -13,11 +14,8 @@ import com.ts.server.ods.evaluation.service.EvaItemService;
 import com.ts.server.ods.evaluation.service.EvaluationService;
 import com.ts.server.ods.exec.ProgressRunnable;
 import org.apache.commons.compress.archivers.zip.Zip64Mode;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +39,12 @@ public class ExportResourceRunner implements ProgressRunnable {
     private final ResourceService resourceService;
     private final OdsProperties properties;
     private final String evaId;
-    private final String password;
 
     private volatile int progress;
 
     public ExportResourceRunner(EvaluationService evaluationService, EvaItemService evaItemService,
                                 DeclarationService declarationService, ResourceService resourceService,
-                                OdsProperties properties, String evaId, String password) {
+                                OdsProperties properties, String evaId) {
 
         this.evaluationService = evaluationService;
         this.itemService = evaItemService;
@@ -55,7 +52,6 @@ public class ExportResourceRunner implements ProgressRunnable {
         this.resourceService = resourceService;
         this.properties = properties;
         this.evaId = evaId;
-        this.password = password;
     }
 
     @Override
@@ -82,10 +78,7 @@ public class ExportResourceRunner implements ProgressRunnable {
         String zipPath = buildZipPath(taskId, evaluation.getName());
 
         try(FileOutputStream fOut = new FileOutputStream(new File(zipPath));
-            ZipArchiveOutputStream tOut = new ZipArchiveOutputStream(fOut)) {
-
-            tOut.setEncoding("UTF-8");
-            tOut.setUseZip64(Zip64Mode.Always);
+            ZipWriter zipWriter = new ZipWriter.Builder(fOut).setMode64(Zip64Mode.Always).build()) {
 
             int count = itemService.count(evaluation.getId(), "", "").intValue();
             int bCount = (count + BATCH_SIZE -1) / BATCH_SIZE;
@@ -97,7 +90,7 @@ public class ExportResourceRunner implements ProgressRunnable {
                         "", "", i * BATCH_SIZE, BATCH_SIZE);
 
                 for(EvaItem item: items){
-                    zip(filenames, tOut, item);
+                    zip(filenames, zipWriter, item);
                     finishCount++;
                     progress =  finishCount * 100 / count;
                 }
@@ -118,13 +111,13 @@ public class ExportResourceRunner implements ProgressRunnable {
         return dirPath + "/" + filename + ".zip";
     }
 
-    private void zip(Set<String> filenames, ZipArchiveOutputStream zOut, EvaItem item)throws IOException{
+    private void zip(Set<String> filenames, ZipWriter zipWriter, EvaItem item)throws IOException{
         List<Declaration> lst = declarationService.queryByEvaItemId(item.getId());
         for(Declaration t: lst){
             String filename= targetFile(filenames, item, t);
             LOGGER.debug("Get declaration resources itemId={}, path={}, filename={},",
                     item.getId(), t.getPath(), filename);
-            addFileToZip(zOut, t.getPath(), filename);
+            zipWriter.addEntry(new File(t.getPath()), filename);
         }
     }
 
@@ -151,19 +144,6 @@ public class ExportResourceRunner implements ProgressRunnable {
 
     private String buildZipFilename(String num, String filename){
         return String.format("%s/%s",  num, filename);
-    }
-
-    private static void addFileToZip(ZipArchiveOutputStream zOut, String path, String entryName) throws IOException {
-        File f = new File(path);
-
-        try (FileInputStream fInputStream = new FileInputStream(f)){
-            ZipArchiveEntry entry = new ZipArchiveEntry(entryName);
-            entry.setSize(f.length());
-            entry.setTime(System.currentTimeMillis());
-            zOut.putArchiveEntry(entry);
-            IOUtils.copy(fInputStream, zOut);
-            zOut.closeArchiveEntry();
-        }
     }
 
     private void saveResource(String id, String path, String filename){

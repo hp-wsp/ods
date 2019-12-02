@@ -5,7 +5,7 @@ import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.base.service.ManagerService;
 import com.ts.server.ods.controller.main.mangae.form.ManagerInfoForm;
 import com.ts.server.ods.controller.main.form.PasswordUpdateForm;
-import com.ts.server.ods.controller.main.mangae.logger.UpdateMangerAccountLogDetailBuilder;
+import com.ts.server.ods.controller.main.mangae.logger.BaseManageLogDetailBuilder;
 import com.ts.server.ods.controller.main.vo.MainDateVo;
 import com.ts.server.ods.controller.main.vo.MainStatsVo;
 import com.ts.server.ods.controller.vo.OkVo;
@@ -54,14 +54,14 @@ public class BaseManageController {
     }
 
     @PostMapping(value = "updatePassword", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员密码")
+    @EnableApiLogger(name = "修改管理员密码", buildDetail = BaseManageLogDetailBuilder.UpdatePasswordBuilder.class)
     @ApiOperation("修改申报员密码")
     public ResultVo<OkVo> updatePassword(@Validated @RequestBody PasswordUpdateForm form){
         return ResultVo.success(new OkVo(managerService.updatePassword(getCredential().getId(), form.getPassword(), form.getNewPassword())));
     }
 
     @PutMapping(value = "account", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员信息", buildDetail = UpdateMangerAccountLogDetailBuilder.class)
+    @EnableApiLogger(name = "修改管理员信息", buildDetail = BaseManageLogDetailBuilder.UpdateAccountBuilder.class)
     @ApiOperation("修改管理员信息")
     public ResultVo<Manager> updateAccount(@Validated @RequestBody ManagerInfoForm form){
         Manager m = managerService.get(getCredential().getId());

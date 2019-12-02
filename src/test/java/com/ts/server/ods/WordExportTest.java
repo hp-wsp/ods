@@ -1,8 +1,7 @@
 package com.ts.server.ods;
 
-import com.ts.server.ods.common.word.Word2003ExportHtml;
-import com.ts.server.ods.common.word.Word2007ExportHtml;
 import com.ts.server.ods.common.word.WordExport;
+import com.ts.server.ods.common.word.WordExportHtmlFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ public class WordExportTest {
 
     @Test
     public void testWord2007ExportHtml(){
-        WordExport export = new Word2007ExportHtml("d:/data", "/test");
+        WordExport export = new WordExportHtmlFactory("d:/data", "/test").word2007();
         try(InputStream inputStream = WordExportTest.class.getResourceAsStream("word2007.docx")){
             export.export(inputStream, "word2007");
         }catch (IOException e){
