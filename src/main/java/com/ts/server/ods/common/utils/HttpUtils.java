@@ -50,9 +50,19 @@ public class HttpUtils {
      * @param suffer 后缀名
      */
     public static void setContentDisposition(HttpServletResponse response, String filename, String suffer){
+        setContentDisposition(response, String.format("%s.%s", filename, suffer));
+    }
+
+    /**
+     * 设置Http header Content-Disposition
+     *
+     * @param response {@link HttpServletResponse}
+     * @param filename 文件名
+     */
+    public static void setContentDisposition(HttpServletResponse response, String filename){
         try{
             final String charset = "UTF-8";
-            String name =  charset + "''"+ URLEncoder.encode(filename, charset) + "." + suffer;
+            String name =  charset + "''"+ URLEncoder.encode(filename, charset);
             response.setHeader("Content-Disposition", "attachment; filename*=" + name);
         }catch (UnsupportedEncodingException e){
             //none instance
