@@ -36,8 +36,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/declare")
-@Api(value = "/declare", tags = "通用API接口")
+@RequestMapping("/declare/main")
+@Api(value = "/declare/main", tags = "通用API接口")
 public class MainDeclareController {
 
     private final MemberService memberService;
@@ -64,26 +64,28 @@ public class MainDeclareController {
     @PostMapping(value = "login", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
     @EnableApiLogger(name = "申报人员登录", buildDetail = LoginLogDetailBuilder.class, obtainUsername = ObtainLoginUsername.class)
     @ApiOperation("申报人员登录")
-    public ResultVo<LoginVo<Member>> memberLogin(@Valid @RequestBody LoginForm form, HttpServletRequest request){
-        boolean needCode  = loginLimitService.getFail(form.getUsername()) > 3;
+    public ResultVo<LoginVo<Member>> memberLogin(@Valid @RequestBody LoginForm form){
 
-        if(needCode && StringUtils.isBlank(form.getCode())){
-            throw new BaseException(103, "验证码不能为空");
-        }
-        if(needCode && !kaptchaService.validate(form.getCodeKey(),form.getCode())){
-            throw new BaseException(104, "验证码错误");
+        //放置于管理员用户名冲突
+        String username = String.format("DEC_%s", form.getUsername());
+
+        //验证码验证
+        if(loginLimitService.incFail(username) > 3){
+            if(StringUtils.isBlank(form.getCode())){
+                throw new BaseException(103, "验证码不能为空");
+            }
+            if(!kaptchaService.validate(form.getCodeKey(),form.getCode())){
+                throw new BaseException(104, "验证码错误");
+            }
         }
 
         Optional<Member> optional = memberService.getValidate(form.getUsername(), form.getPassword());
-        if(optional.isPresent()){
-            loginLimitService.resetFail(form.getUsername());
-        }else{
-            if(loginLimitService.incFail(form.getUsername()) > 4){
-                throw new BaseException(102, "用户或密码错误");
-            }
-            throw new BaseException(101, "用户名或密码错误");
+        if(!optional.isPresent()){
+            int errCode = loginLimitService.getFail(username) >= 3? 102: 101;
+            throw new BaseException(errCode, "用户名或密码错误");
         }
 
+        loginLimitService.resetFail(username);
         Member m = optional.get();
         Credential credential = new Credential(m.getId(), m.getUsername(),
                 Arrays.asList("ROLE_DECLARATION", GlobalRole.ROLE_AUTHENTICATION.name()));

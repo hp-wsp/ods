@@ -35,8 +35,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/manage")
-@Api(value = "/manage", tags = "管理端通用API接口")
+@RequestMapping("/manage/main")
+@Api(value = "/manage/main", tags = "管理端通用API接口")
 public class MainManageController {
 
     private final ManagerService managerService;
@@ -63,25 +63,24 @@ public class MainManageController {
     @EnableApiLogger(name = "管理员登录", buildDetail = LoginLogDetailBuilder.class, obtainUsername = ObtainLoginUsername.class)
     @ApiOperation("管理员登录")
     public ResultVo<LoginVo<Manager>> login(@Valid @RequestBody LoginForm form, HttpServletRequest request){
-        boolean needCode  = loginLimitService.getFail(form.getUsername()) > 3;
 
-        if(needCode && StringUtils.isBlank(form.getCode())){
-            throw new BaseException(103, "验证码不能为空");
-        }
-        if(needCode && !kaptchaService.validate(form.getCodeKey(),form.getCode())){
-            throw new BaseException(104, "验证码错误");
+        //验证码验证
+        if(loginLimitService.incFail(form.getUsername()) > 3){
+            if(StringUtils.isBlank(form.getCode())){
+                throw new BaseException(103, "验证码不能为空");
+            }
+            if(!kaptchaService.validate(form.getCodeKey(),form.getCode())){
+                throw new BaseException(104, "验证码错误");
+            }
         }
 
         Optional<Manager> optional = managerService.getValidate(form.getUsername(), form.getPassword());
-        if(optional.isPresent()){
-            loginLimitService.resetFail(form.getUsername());
-        }else{
-            if(loginLimitService.incFail(form.getUsername()) > 4){
-                throw new BaseException(102, "用户或密码错误");
-            }
-            throw new BaseException(101, "用户名或密码错误");
+        if(!optional.isPresent()){
+            int errCode = loginLimitService.getFail(form.getUsername()) >= 3? 102: 101;
+            throw new BaseException(errCode, "用户名或密码错误");
         }
 
+        loginLimitService.resetFail(form.getUsername());
         Manager m = optional.get();
         Credential credential = new Credential(m.getId(), m.getUsername(),
                 Arrays.asList(m.getRole(), GlobalRole.ROLE_AUTHENTICATION.name()));

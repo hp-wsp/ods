@@ -39,14 +39,14 @@ public class CodeController {
         this.kaptchaService = kaptchaService;
     }
 
-    @RequestMapping(value = "key", produces = APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "key",  produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("创建验证码key")
     public ResultVo<CodeVo> codeKey(){
         return ResultVo.success(new CodeVo(StringUtils.remove(UUID.randomUUID().toString(), "-")));
     }
 
     @GetMapping(value = "image")
-    @ApiOperation("得到验证码")
+    @ApiOperation("得到验证码图片")
     public void codeImage(@RequestParam("codeKey")String codeKey, HttpServletResponse response) {
         response.setDateHeader("Expires", 0);
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");

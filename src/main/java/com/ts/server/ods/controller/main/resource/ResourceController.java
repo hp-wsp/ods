@@ -27,7 +27,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/resource")
-//@ApiACL
+@ApiACL
 @Api(value = "/resource", tags = "资源API接口")
 public class ResourceController {
     private static final long MAX_RAGE = (Integer.MAX_VALUE/2);
@@ -56,7 +56,7 @@ public class ResourceController {
         Resource t = optional.get();
         File file = new File(t.getPath());
         if(!file.isFile()){
-           LOGGER.warn("Download file not exist id={}", id);
+           LOGGER.warn("Download file not exist id={}, path={}", id, t.getPath());
            responseNotFound(response);
            return ;
         }
@@ -157,6 +157,9 @@ public class ResourceController {
     static class RangeSetting {
         private static final String RANGE_SEPARATOR = "-";
 
+        /**
+         * 构建{@link RangeSetting}
+         */
         static class Builder {
             private final long totalLen;
             private final String range;

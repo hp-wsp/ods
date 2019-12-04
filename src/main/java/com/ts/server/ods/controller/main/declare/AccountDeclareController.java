@@ -1,11 +1,11 @@
-package com.ts.server.ods.controller.main.mangae;
+package com.ts.server.ods.controller.main.declare;
 
 import com.ts.server.ods.BaseException;
-import com.ts.server.ods.base.domain.Manager;
-import com.ts.server.ods.base.service.ManagerService;
-import com.ts.server.ods.controller.main.mangae.form.ManagerInfoForm;
+import com.ts.server.ods.base.domain.Member;
+import com.ts.server.ods.base.service.MemberService;
+import com.ts.server.ods.controller.main.declare.logger.BaseDeclareLogDetailBuilder;
+import com.ts.server.ods.controller.main.declare.form.MemberInfoForm;
 import com.ts.server.ods.controller.main.form.PasswordUpdateForm;
-import com.ts.server.ods.controller.main.mangae.logger.BaseManageLogDetailBuilder;
 import com.ts.server.ods.controller.main.vo.MainDateVo;
 import com.ts.server.ods.controller.main.vo.MainStatsVo;
 import com.ts.server.ods.controller.vo.OkVo;
@@ -21,7 +21,6 @@ import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,45 +29,45 @@ import java.util.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 /**
- * 管理端基础API接口
+ * 申报端基础API接口
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/manage")
+@RequestMapping("/declare/account")
 @ApiACL("ROLE_DECLARATION")
-@Api(value = "/manage", tags = "管理端基础API接口")
-public class BaseManageController {
+@Api(value = "/declare/account", tags = "申报端基础API接口")
+public class AccountDeclareController {
 
-    private final ManagerService managerService;
+    private final MemberService memberService;
     private final EvaluationService evaluationService;
     private final TaskCardService taskCardService;
 
     @Autowired
-    public BaseManageController(ManagerService managerService, EvaluationService evaluationService,
-                                TaskCardService taskCardService) {
+    public AccountDeclareController(MemberService memberService, EvaluationService evaluationService,
+                                    TaskCardService taskCardService) {
 
-        this.managerService = managerService;
+        this.memberService = memberService;
         this.evaluationService = evaluationService;
         this.taskCardService = taskCardService;
     }
 
+
     @PostMapping(value = "updatePassword", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员密码", buildDetail = BaseManageLogDetailBuilder.UpdatePasswordBuilder.class)
+    @EnableApiLogger(name = "修改申报员密码", buildDetail = BaseDeclareLogDetailBuilder.UpdatePasswordBuilder.class)
     @ApiOperation("修改申报员密码")
     public ResultVo<OkVo> updatePassword(@Validated @RequestBody PasswordUpdateForm form){
-        return ResultVo.success(new OkVo(managerService.updatePassword(getCredential().getId(), form.getPassword(), form.getNewPassword())));
+        return ResultVo.success(new OkVo(memberService.updatePassword(getCredential().getId(), form.getPassword(), form.getNewPassword())));
     }
 
     @PutMapping(value = "account", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员信息", buildDetail = BaseManageLogDetailBuilder.UpdateAccountBuilder.class)
-    @ApiOperation("修改管理员信息")
-    public ResultVo<Manager> updateAccount(@Validated @RequestBody ManagerInfoForm form){
-        Manager m = managerService.get(getCredential().getId());
+    @EnableApiLogger(name = "修改管理员信息", buildDetail = BaseDeclareLogDetailBuilder.UpdateAccountBuilder.class)
+    @ApiOperation("修改申报员信息")
+    public ResultVo<Member> updateAccount(@Validated @RequestBody MemberInfoForm form){
+        Member m = memberService.get(getCredential().getId());
         m.setName(form.getName());
-        m.setPhone(form.getPhone());
 
-        return ResultVo.success(managerService.update(m));
+        return ResultVo.success(memberService.update(m));
     }
 
     @GetMapping(value = "statistics", produces = APPLICATION_JSON_UTF8_VALUE)
