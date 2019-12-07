@@ -46,7 +46,7 @@ spring:
           prep-stmt-cache-size: 250
           prep-stmt-cache-sql-limit: 2048
   flyway:
-    locations: classpath:/db
+    locations: classpath:/db/V1, classpath:/db/V2
     enabled: true
 
 server:
