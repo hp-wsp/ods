@@ -1,4 +1,4 @@
-package com.ts.server.ods.base.controller.manage.form;
+package com.ts.server.ods.base.controller.declare.form;
 
 import com.ts.server.ods.base.domain.Member;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,8 +19,6 @@ public class MemberUpdateForm {
     @ApiModelProperty(value = "联系电话", required = true)
     @NotBlank
     private String phone;
-    @ApiModelProperty(value = "是否为单位管理员", required = true)
-    private boolean manager;
 
     public String getId() {
         return id;
@@ -46,21 +44,12 @@ public class MemberUpdateForm {
         this.phone = phone;
     }
 
-    public boolean isManager() {
-        return manager;
-    }
-
-    public void setManager(boolean manager) {
-        this.manager = manager;
-    }
-
     public Member toDomain(){
         Member t = new Member();
 
         t.setId(id);
         t.setName(name);
         t.setPhone(phone);
-        t.setManager(manager);
 
         return t;
     }

@@ -36,6 +36,7 @@ public class LoggerController {
     @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("查询短信日志")
     public ResultPageVo<OptLog> query(
+            @ApiParam(value = "名称") @RequestParam(required = false) String name,
             @ApiParam(value = "描述") @RequestParam(required = false) String detail,
             @ApiParam(value = "用户名") @RequestParam(required = false)String username,
             @ApiParam(value = "开始时间") @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fromDate,
@@ -44,8 +45,9 @@ public class LoggerController {
             @RequestParam(defaultValue = "0") @ApiParam(value = "查询页数") int page,
             @RequestParam(defaultValue = "15") @ApiParam(value = "查询每页记录数") int rows){
 
-        return new ResultPageVo.Builder<>(page, rows, service.query(detail, "",username, fromDate, toDate,page * rows, rows))
-                .count(isCount, () -> service.count(detail, "", username, fromDate, toDate))
+        final String type = "";
+        return new ResultPageVo.Builder<>(page, rows, service.query(type, name, detail, username, fromDate, toDate,page * rows, rows))
+                .count(isCount, () -> service.count(type, name, detail,  username, fromDate, toDate))
                 .build();
     }
 }

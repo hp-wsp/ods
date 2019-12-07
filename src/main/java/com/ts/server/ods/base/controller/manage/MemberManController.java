@@ -1,10 +1,12 @@
 package com.ts.server.ods.base.controller.manage;
 
+import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.controller.manage.form.MemberSaveForm;
 import com.ts.server.ods.base.controller.manage.form.MemberUpdateForm;
-import com.ts.server.ods.base.controller.manage.form.PasswordResetForm;
+import com.ts.server.ods.controller.form.PasswordResetForm;
 import com.ts.server.ods.base.controller.manage.logger.MemberLogDetailBuilder;
 import com.ts.server.ods.base.domain.Member;
+import com.ts.server.ods.base.service.CompanyService;
 import com.ts.server.ods.base.service.MemberService;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultPageVo;
@@ -32,19 +34,23 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 @RequestMapping("/manage/member")
 @ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/member", tags = "管理申报员API接口")
-public class MemberManageController {
+public class MemberManController {
     private final MemberService service;
-
+    private final CompanyService companyService;
 
     @Autowired
-    public MemberManageController(MemberService service) {
+    public MemberManController(MemberService service, CompanyService companyService) {
         this.service = service;
+        this.companyService = companyService;
     }
 
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
     @EnableApiLogger(name = "添加申报员", buildDetail = MemberLogDetailBuilder.SaveBuilder.class)
     @ApiOperation("添加申报员")
     public ResultVo<Member> save(@Valid @RequestBody MemberSaveForm form){
+        if(companyService.has(form.getCompanyId())){
+            throw new BaseException("单位不存在");
+        }
         Member member = service.save(form.toDomain());
         return ResultVo.success(member);
     }
@@ -55,6 +61,20 @@ public class MemberManageController {
     public ResultVo<Member> update(@Valid @RequestBody MemberUpdateForm form){
         Member member = service.update(form.toDomain());
         return ResultVo.success(member);
+    }
+
+    @PutMapping(value = "activeManager/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "设置申报员为单位管理员", buildDetail = MemberLogDetailBuilder.ActiveManagerBuilder.class)
+    @ApiOperation("设置申报员为单位管理员")
+    public ResultVo<Member> activeManager(@PathVariable("id") String id){
+        return ResultVo.success(service.updateManager(id, true));
+    }
+
+    @PutMapping(value = "inactiveManager/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "取消申报员为单位管理员", buildDetail = MemberLogDetailBuilder.InactiveManagerBuilder.class)
+    @ApiOperation("取消申报员为单位管理员")
+    public ResultVo<Member> inactiveManager(@PathVariable("id") String id){
+        return ResultVo.success(service.updateManager(id, false));
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -71,15 +91,15 @@ public class MemberManageController {
         return ResultVo.success(service.get(id));
     }
 
-    @PutMapping(value = "/resetPassword", produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "删除申报员", buildDetail = MemberLogDetailBuilder.ResetPasswordBuilder.class)
-    @ApiOperation("重置密码")
+    @PutMapping(value = "resetPassword", produces = APPLICATION_JSON_UTF8_VALUE)
+    @EnableApiLogger(name = "重置申报员密码", buildDetail = MemberLogDetailBuilder.ResetPasswordBuilder.class)
+    @ApiOperation("重置申报员密码")
     public ResultVo<OkVo> resetPassword(@Valid @RequestBody PasswordResetForm form){
         boolean ok = service.resetPassword(form.getId(), form.getNewPassword());
         return ResultVo.success(new OkVo(ok));
     }
 
-    @GetMapping(value = "/company/{companyId}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "company/{companyId}", produces = APPLICATION_JSON_UTF8_VALUE)
     @ApiOperation("查询单位用户")
     public ResultVo<List<Member>> queryOfCompany(@PathVariable("companyId") String companyId){
         return ResultVo.success(service.queryByCompanyId(companyId));
@@ -89,15 +109,14 @@ public class MemberManageController {
     @ApiOperation("查询管理员")
     public ResultPageVo<Member> query(
             @ApiParam(value = "公司编号") @RequestParam(required = false) String companyId,
-            @ApiParam(value = "单位名称") @RequestParam(required = false) String companyName,
             @ApiParam(value = "用户名") @RequestParam(required = false) String username,
             @ApiParam(value = "电话号码") @RequestParam(required = false) String phone,
             @RequestParam(defaultValue = "0") @ApiParam(value = "查询页数") int page,
             @RequestParam(defaultValue = "true") @ApiParam(value = "是否得到查询记录数") boolean isCount,
             @RequestParam(defaultValue = "15") @ApiParam(value = "查询每页记录数") int rows){
 
-        return new ResultPageVo.Builder<>(page, rows, service.query(companyId, companyName, username, phone, page * rows, rows))
-                .count(isCount, () -> service.count(companyId, companyName, username, phone))
+        return new ResultPageVo.Builder<>(page, rows, service.query(companyId, username, phone, page * rows, rows))
+                .count(isCount, () -> service.count(companyId, username, phone))
                 .build();
     }
 

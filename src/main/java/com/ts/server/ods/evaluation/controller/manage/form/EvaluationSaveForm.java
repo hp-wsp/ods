@@ -28,10 +28,10 @@ public class EvaluationSaveForm {
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date toTime;
+    @ApiModelProperty("是否自动开启申报")
+    private boolean auto;
     @ApiModelProperty(value = "导入评测编号")
     private String importId;
-    @ApiModelProperty(value = "是否导入测评任务")
-    private boolean importTask = false;
 
     public String getName() {
         return name;
@@ -65,20 +65,20 @@ public class EvaluationSaveForm {
         this.toTime = toTime;
     }
 
+    public boolean isAuto() {
+        return auto;
+    }
+
+    public void setAuto(boolean auto) {
+        this.auto = auto;
+    }
+
     public String getImportId() {
         return importId;
     }
 
     public void setImportId(String importId) {
         this.importId = importId;
-    }
-
-    public boolean isImportTask() {
-        return importTask;
-    }
-
-    public void setImportTask(boolean importTask) {
-        this.importTask = importTask;
     }
 
     public Evaluation toDomain(){
@@ -88,6 +88,7 @@ public class EvaluationSaveForm {
         t.setRemark(remark);
         t.setFromTime(fromTime);
         t.setToTime(toTime);
+        t.setAuto(auto);
 
         if(t.getFromTime().getTime() > t.getToTime().getTime()){
             throw new BaseException("开始时间不能大于结束时间");

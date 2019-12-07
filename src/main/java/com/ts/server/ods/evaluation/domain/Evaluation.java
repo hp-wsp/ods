@@ -19,9 +19,9 @@ public class Evaluation {
     private String name;
     @ApiModelProperty(value = "考核说明")
     private String remark;
-    @ApiModelProperty(value = "开始时间")
+    @ApiModelProperty(value = "开始申报时间")
     private Date fromTime;
-    @ApiModelProperty(value = "结束时间")
+    @ApiModelProperty(value = "结束申报时间")
     private Date toTime;
     @ApiModelProperty(value = "状态")
     private Status status;
@@ -33,6 +33,8 @@ public class Evaluation {
     private boolean openDec;
     @ApiModelProperty(value = "是否发送申报开始通知短信")
     private boolean sms;
+    @ApiModelProperty(value = "自动开启关闭申报")
+    private boolean auto;
     @ApiModelProperty(value = "修改时间")
     private Date updateTime;
     @ApiModelProperty(value = "创建时间")
@@ -122,6 +124,14 @@ public class Evaluation {
         this.sms = sms;
     }
 
+    public boolean isAuto() {
+        return auto;
+    }
+
+    public void setAuto(boolean auto) {
+        this.auto = auto;
+    }
+
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -146,6 +156,7 @@ public class Evaluation {
         return export == that.export &&
                 openDec == that.openDec &&
                 sms == that.sms &&
+                auto == that.auto &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(name, that.name) &&
                 Objects.equals(remark, that.remark) &&
@@ -159,7 +170,7 @@ public class Evaluation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, remark, fromTime, toTime, status, export, exportId, openDec, sms, updateTime, createTime);
+        return Objects.hash(id, name, remark, fromTime, toTime, status, export, exportId, openDec, sms, auto, updateTime, createTime);
     }
 
     @Override
@@ -175,6 +186,7 @@ public class Evaluation {
                 .append("exportId", exportId)
                 .append("openDec", openDec)
                 .append("sms", sms)
+                .append("auto", auto)
                 .append("updateTime", updateTime)
                 .append("createTime", createTime)
                 .toString();

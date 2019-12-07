@@ -2,7 +2,7 @@ package com.ts.server.ods.base.controller.manage;
 
 import com.ts.server.ods.base.controller.manage.form.ManagerSaveForm;
 import com.ts.server.ods.base.controller.manage.form.ManagerUpdateForm;
-import com.ts.server.ods.base.controller.manage.form.PasswordResetForm;
+import com.ts.server.ods.controller.form.PasswordResetForm;
 import com.ts.server.ods.base.controller.manage.logger.ManagerLogDetailBuilder;
 import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.base.service.ManagerService;
@@ -30,12 +30,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 @RequestMapping("/manage/manager")
 @ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/manager", tags = "管理员管理API接口")
-public class ManagerManageController {
+public class ManagerManController {
 
     private final ManagerService service;
 
     @Autowired
-    public ManagerManageController(ManagerService service) {
+    public ManagerManController(ManagerService service) {
         this.service = service;
     }
 
@@ -56,7 +56,7 @@ public class ManagerManageController {
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员信息", buildDetail = ManagerLogDetailBuilder.DeleteBuilder.class)
+    @EnableApiLogger(name = "删除管理员", buildDetail = ManagerLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除管理员")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
         boolean ok = service.delete(id);

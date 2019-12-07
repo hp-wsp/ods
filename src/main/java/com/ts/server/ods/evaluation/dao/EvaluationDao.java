@@ -31,8 +31,9 @@ public class EvaluationDao {
         t.setStatus(Evaluation.Status.valueOf(r.getString("status")));
         t.setExport(r.getBoolean("is_export"));
         t.setExportId(r.getString("export_id"));
-        t.setSms(r.getBoolean("is_sms"));
         t.setOpenDec(r.getBoolean("is_open_dec"));
+        t.setSms(r.getBoolean("is_sms"));
+        t.setAuto(r.getBoolean("is_auto"));
         t.setUpdateTime(r.getTimestamp("update_time"));
         t.setCreateTime(r.getTimestamp("create_time"));
 
@@ -45,15 +46,15 @@ public class EvaluationDao {
     }
 
     public void insert(Evaluation t){
-        final String sql = "INSERT INTO e_evaluation (id, name, remark, from_time, to_time, status, is_open_dec, update_time, create_time)" +
-                " VALUES (?, ?, ?, ?, ?, ?, false, now(), now())";
-        jdbcTemplate.update(sql, t.getId(), t.getName(), t.getRemark(), t.getFromTime(), t.getToTime(), t.getStatus().name());
+        final String sql = "INSERT INTO e_evaluation (id, name, remark, from_time, to_time, status, is_auto, is_open_dec, update_time, create_time)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, false, now(), now())";
+        jdbcTemplate.update(sql, t.getId(), t.getName(), t.getRemark(), t.getFromTime(), t.getToTime(), t.getStatus().name(), t.isAuto());
     }
 
     public boolean update(Evaluation t){
-        final String sql ="UPDATE e_evaluation SET name = ?, remark = ?, from_time = ?, to_time = ?, " +
+        final String sql ="UPDATE e_evaluation SET name = ?, remark = ?, from_time = ?, to_time = ?, is_auto = ?, " +
                 "update_time = now() WHERE id = ?";
-        return jdbcTemplate.update(sql, t.getName(), t.getRemark(), t.getFromTime(), t.getToTime(), t.getId()) > 0;
+        return jdbcTemplate.update(sql, t.getName(), t.getRemark(), t.getFromTime(), t.getToTime(), t.isAuto(), t.getId()) > 0;
     }
 
     public boolean updateStatus(String id, Evaluation.Status status){
@@ -84,6 +85,12 @@ public class EvaluationDao {
     public Evaluation findOne(String id){
         final String sql = "SELECT * FROM e_evaluation WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, mapper);
+    }
+
+    public boolean has(String id){
+        final String sql = "SELECT COUNT(id) FROM e_evaluation WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
+        return count != null && count > 0;
     }
 
     public Optional<Evaluation> findLasted(){

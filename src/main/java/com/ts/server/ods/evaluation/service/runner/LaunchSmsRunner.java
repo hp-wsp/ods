@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -55,12 +57,14 @@ public class LaunchSmsRunner implements ProgressRunnable {
     @Override
     public void run() {
         Evaluation evaluation = evaService.get(evaId);
-        if(evaluation.getStatus() != Evaluation.Status.OPEN){
+        if(evaluation.getStatus() != Evaluation.Status.OPEN || !evaluation.isOpenDec()){
             LOGGER.warn("Evaluation is not open skipp send sms evaId={}", evaId);
-            throw new BaseException("测评还未开启");
+            throw new BaseException("测评申报还未开启");
         }
 
-        evaService.sendSms(evaId);
+        if (!evaluation.isSms()){
+            evaService.sendSms(evaId);
+        }
 
         List<TaskCard> cards = taskCardService.queryByEvaId(evaId);
         int count = cards.size();
@@ -70,13 +74,10 @@ public class LaunchSmsRunner implements ProgressRunnable {
         for(TaskCard card: cards){
 
             try{
-                Member member = memberService.get(card.getDecId());
-                String[] params = buildOpenEvaSmsParams(member, evaluation);
-
-                smsService.sendTemplate(member.getPhone(), properties.getApplyTmp(), params,
-                        e -> String.format("%s申报已经开始; 登录平台 用户名: %s; 密码:%s; 申报时间:%s - %s;",
-                                params[0], params[1], "******", params[3], params[4]));
-
+                List<Member> members = getMembers(card.getDecId());
+                for(Member member: members){
+                    sendSms(member, evaluation);
+                }
             }catch (Exception e){
                 LOGGER.debug("Send launch sms fail cardId={}, companyName={}, sendCount={}, throw={}",
                         card.getId(), card.getCompanyName(), sendCount, e.getMessage());
@@ -87,6 +88,26 @@ public class LaunchSmsRunner implements ProgressRunnable {
         }
 
         progress = 100;
+    }
+
+    private List<Member> getMembers(String memberId){
+        Member member = memberService.get(memberId);
+        if(member.isManager()){
+            return Collections.singletonList(member);
+        }
+
+        List<Member> members = memberService.queryByCompanyId(member.getCompanyId()).stream()
+                .filter(Member::isManager).collect(Collectors.toList());
+        Collections.addAll(members, member);
+        return members;
+    }
+
+    private void sendSms(Member member, Evaluation evaluation){
+        String[] params = buildOpenEvaSmsParams(member, evaluation);
+
+        smsService.sendTemplate(member.getPhone(), properties.getApplyTmp(), params,
+                e -> String.format("%s申报已经开始; 登录平台 用户名: %s; 密码:%s; 申报时间:%s - %s;",
+                        params[0], params[1], "******", params[3], params[4]));
     }
 
     private String[] buildOpenEvaSmsParams(Member member, Evaluation evaluation){

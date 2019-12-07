@@ -78,15 +78,4 @@ public class EvaluationLogDetailBuilder {
             return String.format("编号:%s;名称:%s", t.getId(), t.getName());
         }
     }
-
-    /**
-     * 构建打开测评日志
-     */
-    public final static class SendSmsBuilder implements ApiLogDetailBuilder {
-        @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            String id = (String)joinPoint.getArgs()[0];
-            return String.format("编号:%s", id);
-        }
-    }
 }

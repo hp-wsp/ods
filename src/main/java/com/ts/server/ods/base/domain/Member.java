@@ -3,9 +3,7 @@ package com.ts.server.ods.base.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.Objects;
 
@@ -17,20 +15,19 @@ import java.util.Objects;
 public class Member {
     @ApiModelProperty(value = "编号")
     private String id;
+    @ApiModelProperty(value = "单位编号")
+    private String companyId;
     @ApiModelProperty(value = "用户名")
     private String username;
     @ApiModelProperty(value = "姓名")
     private String name;
-    @ApiModelProperty(value = "联系电话", required = true)
-    @NotBlank
+    @ApiModelProperty(value = "联系电话")
     private String phone;
     @ApiModelProperty(value = "登录密码")
     @JsonIgnore
     private String password;
-    @ApiModelProperty(value = "单位编号")
-    private String companyId;
-    @ApiModelProperty(value = "单位名称")
-    private String companyName;
+    @ApiModelProperty(value = "是否是管理员")
+    private boolean manager;
     @ApiModelProperty(value = "修改时间")
     private Date updateTime;
     @ApiModelProperty(value = "创建时间")
@@ -42,6 +39,14 @@ public class Member {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
     }
 
     public String getUsername() {
@@ -76,20 +81,12 @@ public class Member {
         this.password = password;
     }
 
-    public String getCompanyId() {
-        return companyId;
+    public boolean isManager() {
+        return manager;
     }
 
-    public void setCompanyId(String companyId) {
-        this.companyId = companyId;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setManager(boolean manager) {
+        this.manager = manager;
     }
 
     public Date getUpdateTime() {
@@ -113,20 +110,20 @@ public class Member {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Member member = (Member) o;
-        return Objects.equals(id, member.id) &&
+        return manager == member.manager &&
+                Objects.equals(id, member.id) &&
                 Objects.equals(username, member.username) &&
                 Objects.equals(name, member.name) &&
                 Objects.equals(phone, member.phone) &&
                 Objects.equals(password, member.password) &&
                 Objects.equals(companyId, member.companyId) &&
-                Objects.equals(companyName, member.companyName) &&
                 Objects.equals(updateTime, member.updateTime) &&
                 Objects.equals(createTime, member.createTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, name, phone, password, companyId, companyName, updateTime, createTime);
+        return Objects.hash(id, username, name, phone, password, companyId, manager, updateTime, createTime);
     }
 
     @Override
@@ -138,7 +135,7 @@ public class Member {
                 .append("phone", phone)
                 .append("password", password)
                 .append("companyId", companyId)
-                .append("companyName", companyName)
+                .append("manager", manager)
                 .append("updateTime", updateTime)
                 .append("createTime", createTime)
                 .toString();

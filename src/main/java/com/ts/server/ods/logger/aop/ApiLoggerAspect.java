@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class ApiLoggerAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiLoggerAspect.class);
+    private static final ObtainUsername DEFAULT_OBTAIN_USERNAME = new NoneObtainUsername();
 
     private final OptLogService logService;
     private final ConcurrentMap<Class<? extends ApiLogDetailBuilder>, ApiLogDetailBuilder> builders;
@@ -38,21 +39,21 @@ public class ApiLoggerAspect {
         this.obtains = new ConcurrentHashMap<>();
     }
 
-    @Pointcut("@annotation(com.ts.server.ods.logger.aop.annotation.EnableHttpLogger)")
+    @Pointcut("@annotation(com.ts.server.ods.logger.aop.annotation.EnableApiLogger)")
     public void logging(){
 
     }
 
-    @AfterReturning("@annotation(enableHttpLogger)")
-    public void after(JoinPoint joinPoint, EnableApiLogger enableHttpLogger){
+    @AfterReturning("@annotation(loggerAnn)")
+    public void after(JoinPoint joinPoint, EnableApiLogger loggerAnn){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        String username = getUsername(joinPoint, attributes, enableHttpLogger.obtainUsername());
+        String username = getUsername(joinPoint, attributes, loggerAnn.obtainUsername());
 
-        ApiLogDetailBuilder builder = getInstance(builders, enableHttpLogger.buildDetail()).orElse(new NoneLogDetailBuilder());
+        ApiLogDetailBuilder builder = getInstance(builders, loggerAnn.buildDetail()).orElse(new NoneLogDetailBuilder());
         String detail = builder.build(joinPoint, attributes);
 
-        logService.save(enableHttpLogger.name(), username, detail);
+        logService.save(loggerAnn.type(), loggerAnn.name(), username, detail);
     }
 
     private <T> Optional<T> getInstance(ConcurrentMap<Class<? extends T>, T> map, Class<? extends T> clazz){
@@ -79,7 +80,7 @@ public class ApiLoggerAspect {
      */
     private String getUsername(JoinPoint joinPoint, ServletRequestAttributes attributes, Class<? extends  ObtainUsername> clazz){
         if(clazz != null){
-            ObtainUsername obtainUsername = getInstance(obtains, clazz).orElse(new NoneObtainUsername());
+            ObtainUsername obtainUsername = getInstance(obtains, clazz).orElse(DEFAULT_OBTAIN_USERNAME);
             return obtainUsername.obtain(joinPoint, attributes);
         }
 

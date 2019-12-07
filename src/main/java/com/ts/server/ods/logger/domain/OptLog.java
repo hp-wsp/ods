@@ -14,12 +14,14 @@ import java.util.Objects;
 public class OptLog {
     @ApiModelProperty("编号")
     private long id;
-    @ApiModelProperty("详情")
-    private String detail;
-    @ApiModelProperty("参数")
-    private String params;
     @ApiModelProperty("操作用户名")
     private String username;
+    @ApiModelProperty("日志类型")
+    private String type;
+    @ApiModelProperty("日志名称")
+    private String name;
+    @ApiModelProperty("详情")
+    private String detail;
     @ApiModelProperty("操作日志")
     private Date createTime;
 
@@ -31,28 +33,36 @@ public class OptLog {
         this.id = id;
     }
 
-    public String getDetail() {
-        return detail;
-    }
-
-    public void setDetail(String detail) {
-        this.detail = detail;
-    }
-
-    public String getParams() {
-        return params;
-    }
-
-    public void setParams(String params) {
-        this.params = params;
-    }
-
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
     public Date getCreateTime() {
@@ -69,24 +79,26 @@ public class OptLog {
         if (o == null || getClass() != o.getClass()) return false;
         OptLog optLog = (OptLog) o;
         return id == optLog.id &&
-                Objects.equals(detail, optLog.detail) &&
-                Objects.equals(params, optLog.params) &&
                 Objects.equals(username, optLog.username) &&
+                Objects.equals(type, optLog.type) &&
+                Objects.equals(name, optLog.name) &&
+                Objects.equals(detail, optLog.detail) &&
                 Objects.equals(createTime, optLog.createTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, detail, params, username, createTime);
+        return Objects.hash(id, username, type, name, detail, createTime);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("detail", detail)
-                .append("params", params)
                 .append("username", username)
+                .append("type", type)
+                .append("name", name)
+                .append("detail", detail)
                 .append("createTime", createTime)
                 .toString();
     }

@@ -1,13 +1,19 @@
 package com.ts.server.ods.evaluation.service;
 
+import com.ts.server.ods.SmsProperties;
+import com.ts.server.ods.base.service.MemberService;
+import com.ts.server.ods.etask.service.TaskCardService;
 import com.ts.server.ods.evaluation.domain.Evaluation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.ts.server.ods.evaluation.service.runner.LaunchSmsRunner;
+import com.ts.server.ods.sms.service.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 评测定时任务处理
@@ -16,37 +22,79 @@ import java.util.List;
  */
 @Component
 public class EvaluationScheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EvaluationScheduler.class);
+    private final Timer timer = new Timer("SMS_SEND");
     private final EvaluationService service;
+    private final TaskCardService taskCardService;
+    private final MemberService memberService;
+    private final SmsService smsService;
+    private final SmsProperties properties;
 
     @Autowired
-    public EvaluationScheduler(EvaluationService service) {
+    public EvaluationScheduler(EvaluationService service, TaskCardService taskCardService,
+                               MemberService memberService, SmsService smsService, SmsProperties properties) {
+
         this.service = service;
+        this.taskCardService = taskCardService;
+        this.memberService = memberService;
+        this.smsService = smsService;
+        this.properties = properties;
     }
 
-//    @Scheduled(fixedDelay = 60000L, initialDelay = 20000L)
-    public void open(){
-        List<Evaluation> lst = service.query("", Evaluation.Status.WAIT, 0, 50);
+    @Scheduled(fixedDelay = 60000L, initialDelay = 60000L)
+    public void openDecSchedule(){
+        List<Evaluation> lst = service.query("", Evaluation.Status.OPEN, 0, 50);
+        lst.stream().filter(this::isOpenDec).forEach(this::openDec);
+    }
+
+    /**
+     * 判断是否开启申报
+     *
+     * @param t {@link Evaluation}
+     * @return true:开启申报
+     */
+    private boolean isOpenDec(Evaluation t){
         long now = System.currentTimeMillis();
-        lst.stream().filter(e -> isOpen(now, e))
-                .peek(e -> LOGGER.info("Open evaluation id={},name={}", e.getId(), e.getName()))
-                .forEach(e -> service.updateStatus(e.getId(), Evaluation.Status.OPEN, "ROBOT"));
+        return t.isAuto() && !t.isOpenDec() && (t.getFromTime().getTime()<= now && t.getToTime().getTime() >= now);
     }
 
-    private boolean isOpen(long now, Evaluation e){
-        return e.getFromTime().getTime()<= now && e.getToTime().getTime() >= now;
+    /**
+     * 打开评测申报
+     *
+     * @param t {@link Evaluation}
+     */
+    private void openDec(Evaluation t){
+        service.openDec(t.getId());
+
+        if(t.isSms()){
+            return ;
+        }
+
+        int hour = LocalTime.now().getHour();
+        LaunchSmsRunner runner = new LaunchSmsRunner(service, taskCardService, memberService, smsService, properties, t.getId());
+        if(hour > 8 && hour <22){
+            runner.run();
+            return ;
+        }
+
+        //延迟到工作时间发送
+        int delayHours = hour < 9? 9 - hour: (23 - hour) + 9;
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runner.run();
+            }
+        }, delayHours * 3600 * 1000L);
     }
 
-    //@Scheduled(fixedDelay = 60000L, initialDelay = 50000L)
-    public void close(){
+    @Scheduled(fixedDelay = 60000L, initialDelay = 60000L)
+    public void closeDecSchedule(){
         List<Evaluation> lst = service.query("", Evaluation.Status.OPEN, 0, 50);
         long now = System.currentTimeMillis();
         lst.stream().filter(e -> isClose(now, e))
-                .peek(e -> LOGGER.info("Close evaluation id={},name={}", e.getId(), e.getName()))
-                .forEach(e -> service.updateStatus(e.getId(), Evaluation.Status.CLOSE, "ROBOT"));
+                .forEach(e -> service.updateStatus(e.getId(), Evaluation.Status.CLOSE));
     }
 
     private boolean isClose(long now, Evaluation e){
-        return e.getToTime().getTime() <= now;
+        return e.isAuto() && e.isOpenDec() && e.getToTime().getTime() <= now;
     }
 }

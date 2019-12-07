@@ -9,18 +9,17 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 新增公司提交数据
+ * 新增单位提交数据
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 public class CompanySaveForm {
     @NotBlank
-    @ApiModelProperty(value = "公司名称", required = true)
+    @ApiModelProperty(value = "单位名称", required = true)
     private String name;
-    @NotBlank
-    @ApiModelProperty(value = "申报员电话", required = true)
+    @ApiModelProperty(value = "联系电话", required = true)
     private String phone;
-    @ApiModelProperty(value = "申报员姓名")
+    @ApiModelProperty(value = "联系人")
     private String contact;
     @ApiModelProperty(value = "分组编号")
     @Min(1) @Max(100)

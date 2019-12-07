@@ -11,12 +11,10 @@
 <configuration>
     <property name="LOGS_HOME" value="logs"/>
 
-    <appender name="file"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS_HOME}/ods.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_HOME}/ods-%d{yyyy-MM-dd}.log
-            </fileNamePattern>
+            <fileNamePattern>${LOGS_HOME}/ods-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -32,7 +30,7 @@
 
     <root level="INFO">
         <appender-ref ref="stdout"/>
-        <!--<appender-ref ref="file"/>-->
+        <appender-ref ref="file"/>
     </root>
 
     <logger name="com.ts.server.ods" level="DEBUG"/>

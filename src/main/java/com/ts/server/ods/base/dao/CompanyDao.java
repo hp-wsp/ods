@@ -54,6 +54,12 @@ public class CompanyDao {
         return jdbcTemplate.update(sql, t.getName(), t.getPhone(), t.getContact(), t.getGroup(), t.getGroupNum(), t.getId()) > 0;
     }
 
+    public boolean has(String id){
+        final String sql = "SELECT COUNT(id) FROM b_company WHERE id = ? AND is_delete = false";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
+        return count != null && count > 0;
+    }
+
     public Company findOne(String id){
         final String sql = "SELECT * FROM b_company WHERE id =? AND is_delete = false";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, mapper);

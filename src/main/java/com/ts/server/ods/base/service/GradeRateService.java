@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 评分比例业务服务
+ * 评分比率业务服务
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
@@ -30,7 +30,7 @@ public class GradeRateService {
     @Transactional(propagation = Propagation.REQUIRED)
     public GradeRate save(GradeRate t){
         if(dao.hasLevel(t.getLevel())){
-            throw new BaseException("评分比例已经存在");
+            throw new BaseException("评分比率已经存在");
         }
 
         t.setId(IdGenerators.uuid());
@@ -43,7 +43,7 @@ public class GradeRateService {
     public GradeRate update(GradeRate t){
 
         if(!dao.update(t)){
-            throw new BaseException("修补评分比例失败");
+            throw new BaseException("修改评分比率失败");
         }
 
         return dao.findOne(t.getId());
@@ -53,7 +53,7 @@ public class GradeRateService {
         try{
             return dao.findOne(id);
         }catch (DataAccessException e){
-            throw new BaseException("评分比例不存在");
+            throw new BaseException("评分比率不存在");
         }
     }
 

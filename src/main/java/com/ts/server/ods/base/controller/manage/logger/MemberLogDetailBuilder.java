@@ -1,7 +1,7 @@
 package com.ts.server.ods.base.controller.manage.logger;
 
 import com.ts.server.ods.base.controller.manage.form.MemberUpdateForm;
-import com.ts.server.ods.base.controller.manage.form.PasswordResetForm;
+import com.ts.server.ods.controller.form.PasswordResetForm;
 import com.ts.server.ods.base.domain.Member;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultVo;
@@ -50,6 +50,28 @@ public class MemberLogDetailBuilder {
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
             MemberUpdateForm form = (MemberUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
+        }
+    }
+
+    /**
+     * 构建设置申报员为单位管理员
+     */
+    public final static class ActiveManagerBuilder implements ApiLogDetailBuilder {
+        @Override
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+            String id = (String) joinPoint.getArgs()[0];
+            return String.format("编号:%s;%s", id, "设为单位管理员");
+        }
+    }
+
+    /**
+     * 构建取消申报员为单位管理员
+     */
+    public final static class InactiveManagerBuilder implements  ApiLogDetailBuilder {
+        @Override
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+            String id = (String) joinPoint.getArgs()[0];
+            return String.format("编号:%s;%s", id, "取消单位管理员");
         }
     }
 

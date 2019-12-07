@@ -46,7 +46,7 @@ public class SmsService {
         t.setPhone(phone);
         t.setContent(content);
         getMember(phone).ifPresent(e -> {
-            t.setCompanyName(e.getCompanyName());
+            //t.setCompanyName(e.getCompanyName());
             t.setName(e.getName());
         });
 
@@ -77,7 +77,7 @@ public class SmsService {
         t.setPhone(phone);
         t.setContent(funLogContent.apply(params));
         getMember(phone).ifPresent(e -> {
-            t.setCompanyName(e.getCompanyName());
+            //t.setCompanyName(e.getCompanyName());
             t.setName(e.getName());
         });
         try{

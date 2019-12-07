@@ -1,18 +1,17 @@
-package com.ts.server.ods.controller.main.declare;
+package com.ts.server.ods.controller.main.mangae;
 
 import com.ts.server.ods.BaseException;
-import com.ts.server.ods.base.domain.Member;
-import com.ts.server.ods.base.service.MemberService;
-import com.ts.server.ods.controller.main.declare.logger.BaseDeclareLogDetailBuilder;
-import com.ts.server.ods.controller.main.declare.form.MemberInfoForm;
-import com.ts.server.ods.controller.main.form.PasswordUpdateForm;
+import com.ts.server.ods.base.domain.Manager;
+import com.ts.server.ods.base.service.ManagerService;
+import com.ts.server.ods.controller.main.mangae.form.ManagerInfoForm;
+import com.ts.server.ods.controller.form.PasswordUpdateForm;
+import com.ts.server.ods.controller.main.mangae.logger.BaseManageLogDetailBuilder;
 import com.ts.server.ods.controller.main.vo.MainDateVo;
 import com.ts.server.ods.controller.main.vo.MainStatsVo;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.etask.service.TaskCardService;
 import com.ts.server.ods.evaluation.domain.Evaluation;
-import com.ts.server.ods.evaluation.domain.EvaluationLog;
 import com.ts.server.ods.evaluation.service.EvaluationService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.Credential;
@@ -21,6 +20,7 @@ import com.ts.server.ods.security.annotation.ApiACL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,45 +29,45 @@ import java.util.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 /**
- * 申报端基础API接口
+ * 管理端基础API接口
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
-@RequestMapping("/declare/account")
+@RequestMapping("/manage/account")
 @ApiACL("ROLE_DECLARATION")
-@Api(value = "/declare/account", tags = "申报端基础API接口")
-public class AccountDeclareController {
+@Api(value = "/manage/account", tags = "管理端基础API接口")
+public class AccountManController {
 
-    private final MemberService memberService;
+    private final ManagerService managerService;
     private final EvaluationService evaluationService;
     private final TaskCardService taskCardService;
 
     @Autowired
-    public AccountDeclareController(MemberService memberService, EvaluationService evaluationService,
-                                    TaskCardService taskCardService) {
+    public AccountManController(ManagerService managerService, EvaluationService evaluationService,
+                                TaskCardService taskCardService) {
 
-        this.memberService = memberService;
+        this.managerService = managerService;
         this.evaluationService = evaluationService;
         this.taskCardService = taskCardService;
     }
 
-
     @PostMapping(value = "updatePassword", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改申报员密码", buildDetail = BaseDeclareLogDetailBuilder.UpdatePasswordBuilder.class)
+    @EnableApiLogger(name = "修改管理员密码", buildDetail = BaseManageLogDetailBuilder.UpdatePasswordBuilder.class)
     @ApiOperation("修改申报员密码")
     public ResultVo<OkVo> updatePassword(@Validated @RequestBody PasswordUpdateForm form){
-        return ResultVo.success(new OkVo(memberService.updatePassword(getCredential().getId(), form.getPassword(), form.getNewPassword())));
+        return ResultVo.success(new OkVo(managerService.updatePassword(getCredential().getId(), form.getPassword(), form.getNewPassword())));
     }
 
     @PutMapping(value = "account", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改管理员信息", buildDetail = BaseDeclareLogDetailBuilder.UpdateAccountBuilder.class)
-    @ApiOperation("修改申报员信息")
-    public ResultVo<Member> updateAccount(@Validated @RequestBody MemberInfoForm form){
-        Member m = memberService.get(getCredential().getId());
+    @EnableApiLogger(name = "修改管理员信息", buildDetail = BaseManageLogDetailBuilder.UpdateAccountBuilder.class)
+    @ApiOperation("修改管理员信息")
+    public ResultVo<Manager> updateAccount(@Validated @RequestBody ManagerInfoForm form){
+        Manager m = managerService.get(getCredential().getId());
         m.setName(form.getName());
+        m.setPhone(form.getPhone());
 
-        return ResultVo.success(memberService.update(m));
+        return ResultVo.success(managerService.update(m));
     }
 
     @GetMapping(value = "statistics", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -98,23 +98,23 @@ public class AccountDeclareController {
 
     @GetMapping(value = "dateLine", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResultVo<Collection<MainDateVo>> dataLine(){
-        Optional<Evaluation> optional = evaluationService.queryLasted();
-        if(!optional.isPresent()){
-            return ResultVo.success(Collections.emptyList());
-        }
+//        Optional<Evaluation> optional = evaluationService.queryLasted();
+//        if(!optional.isPresent()){
+//            return ResultVo.success(Collections.emptyList());
+//        }
+//
+//        List<EvaluationLog> logs = evaluationService.queryLog(optional.get().getId());
+//        Map<String, MainDateVo> data = new LinkedHashMap<>();
+//        for(EvaluationLog log: logs){
+//            MainDateVo vo = data.get(log.getDay());
+//            if(vo == null){
+//                vo = new MainDateVo(log.getDay());
+//                data.put(log.getDay(), vo);
+//            }
+//            vo.addDetail(new MainDateVo.DateDetail(log.getDetail(), log.getUsername(), log.getCreateTime()));
+//        }
 
-        List<EvaluationLog> logs = evaluationService.queryLog(optional.get().getId());
-        Map<String, MainDateVo> data = new LinkedHashMap<>();
-        for(EvaluationLog log: logs){
-            MainDateVo vo = data.get(log.getDay());
-            if(vo == null){
-                vo = new MainDateVo(log.getDay());
-                data.put(log.getDay(), vo);
-            }
-            vo.addDetail(new MainDateVo.DateDetail(log.getDetail(), log.getUsername(), log.getCreateTime()));
-        }
-
-        return ResultVo.success(data.values());
+        return ResultVo.success(Collections.emptyList());
     }
 
     private Credential getCredential(){

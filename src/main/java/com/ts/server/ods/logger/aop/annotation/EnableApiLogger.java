@@ -20,6 +20,13 @@ public @interface EnableApiLogger {
     String name();
 
     /**
+     * 日志类型
+     *
+     * @return 日志类型
+     */
+    String type() default "";
+
+    /**
      * 生成日志描述
      *
      * @return {@link ApiLogDetailBuilder}

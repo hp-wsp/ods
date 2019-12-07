@@ -25,12 +25,12 @@ public class MemberDao {
         Member t = new Member();
 
         t.setId(r.getString("id"));
+        t.setCompanyId(r.getString("company_id"));
         t.setUsername(r.getString("username"));
         t.setName(r.getString("name"));
         t.setPassword(r.getString("password"));
         t.setPhone(r.getString("phone"));
-        t.setCompanyId(r.getString("company_id"));
-        t.setCompanyName(r.getString("company_name"));
+        t.setManager(r.getBoolean("is_manager"));
         t.setUpdateTime(r.getTimestamp("update_time"));
         t.setCreateTime(r.getTimestamp("create_time"));
 
@@ -43,18 +43,17 @@ public class MemberDao {
     }
 
     public void insert(Member t){
-        final String sql = "INSERT INTO b_member (id, username, name, password, phone, company_id, company_name, update_time, create_time) " +
+        final String sql = "INSERT INTO b_member (id, username, name, password, phone, company_id, is_manager, update_time, create_time) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, now(), now())";
 
-        jdbcTemplate.update(sql, t.getId(), t.getUsername(), t.getName(), t.getPassword(), t.getPhone(), t.getCompanyId(),
-                t.getCompanyName());
+        jdbcTemplate.update(sql, t.getId(), t.getUsername(), t.getName(), t.getPassword(), t.getPhone(), t.getCompanyId(), t.isManager());
     }
 
     public boolean update(Member t){
-        final String sql = "UPDATE b_member SET name = ?, phone = ?, company_id = ?, company_name = ?, update_time = now() " +
+        final String sql = "UPDATE b_member SET name = ?, phone = ?, is_manager = ?, update_time = now() " +
                 "WHERE id = ? AND is_delete = false";
 
-        return jdbcTemplate.update(sql, t.getName(), t.getPhone(), t.getCompanyId(), t.getCompanyName(), t.getId()) > 0;
+        return jdbcTemplate.update(sql, t.getName(), t.getPhone(), t.isManager(), t.getId()) > 0;
     }
 
     public boolean delete(String id){
@@ -91,28 +90,24 @@ public class MemberDao {
         return jdbcTemplate.query(sql, new Object[]{companyId}, mapper);
     }
 
-    public Long count(String companyId, String companyName, String username, String phone){
-        final String sql = "SELECT COUNT(id) FROM b_member WHERE company_id LIKE ? AND company_name LIKE ? " +
-                "AND username LIKE ? AND phone LIKE ? AND is_delete = false";
+    public Long count(String companyId, String username, String phone){
+        final String sql = "SELECT COUNT(id) FROM b_member WHERE company_id LIKE ? AND username LIKE ? AND phone LIKE ? AND is_delete = false";
 
         String companyIdLike = DaoUtils.blankLike(companyId);
-        String companyNameLike = DaoUtils.like(companyName);
         String usernameLike = DaoUtils.like(username);
         String phoneLike = DaoUtils.like(phone);
 
-        return jdbcTemplate.queryForObject(sql, new Object[]{companyIdLike, companyNameLike, usernameLike, phoneLike}, Long.class);
+        return jdbcTemplate.queryForObject(sql, new Object[]{companyIdLike, usernameLike, phoneLike}, Long.class);
     }
 
-    public List<Member> find(String companyId, String companyName, String username, String phone, int offset, int limit){
-        final String sql = "SELECT * FROM b_member WHERE company_id LIKE ? AND company_name LIKE ? " +
-                "AND username LIKE ? AND phone LIKE ? AND is_delete = false " +
+    public List<Member> find(String companyId, String username, String phone, int offset, int limit){
+        final String sql = "SELECT * FROM b_member WHERE company_id LIKE ? AND username LIKE ? AND phone LIKE ? AND is_delete = false " +
                 "ORDER BY create_time DESC LIMIT ? OFFSET ?";
 
         String companyIdLike = DaoUtils.blankLike(companyId);
-        String companyNameLike = DaoUtils.like(companyName);
         String usernameLike = DaoUtils.like(username);
         String phoneLike = DaoUtils.like(phone);
 
-        return jdbcTemplate.query(sql, new Object[]{companyIdLike, companyNameLike, usernameLike, phoneLike, limit, offset}, mapper);
+        return jdbcTemplate.query(sql, new Object[]{companyIdLike, usernameLike, phoneLike, limit, offset}, mapper);
     }
 }

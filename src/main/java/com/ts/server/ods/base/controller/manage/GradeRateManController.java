@@ -29,11 +29,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 @RequestMapping("/manage/gradeRate")
 @ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/gradeRate", tags = "得分比率设置API接口")
-public class GradeRateMangeController {
+public class GradeRateManController {
     private final GradeRateService service;
 
     @Autowired
-    public GradeRateMangeController(GradeRateService service) {
+    public GradeRateManController(GradeRateService service) {
         this.service = service;
     }
 

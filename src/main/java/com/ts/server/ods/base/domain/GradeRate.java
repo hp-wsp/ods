@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * 评分比例
+ * 评分比率
  *
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
@@ -16,7 +16,7 @@ public class GradeRate {
     private String id;
     @ApiModelProperty("级别")
     private String level;
-    @ApiModelProperty("得分比例")
+    @ApiModelProperty("得分比率")
     private int rate;
     @ApiModelProperty("修改日志")
     private Date updateTime;

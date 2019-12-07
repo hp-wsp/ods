@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Cipher;
 import java.security.MessageDigest;
 
 /**
@@ -142,4 +143,5 @@ public class SecurityUtils {
     public static String md5(String c){
         return md5(c , "UTF-8");
     }
+
 }

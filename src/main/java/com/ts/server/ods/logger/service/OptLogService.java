@@ -26,47 +26,22 @@ public class OptLogService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void save(String detail, String username){
-        save(detail, new String[0], new Object[0], username);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void save(String detail, String[] paramKeys, Object[] paramValues, String username){
+    public void save(String type, String name, String username, String detail){
         OptLog t = new OptLog();
 
+        t.setType(type);
+        t.setName(name);
         t.setDetail(detail);
-        t.setParams(buildParams(paramKeys, paramValues));
         t.setUsername(username);
 
         dao.insert(t);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void save(String name, String username, String detail){
-        OptLog t = new OptLog();
-
-        t.setDetail(name);
-        t.setUsername(username);
-        t.setParams(detail);
-
-        dao.insert(t);
+    public Long count(String type, String name, String detail, String username, Date fromDate, Date toDate){
+        return dao.count(type, name, detail, username, fromDate, toDate);
     }
 
-    private String buildParams(String[] paramKeys, Object[] paramValues){
-        int len = paramKeys.length;
-        StringBuilder builder = new StringBuilder(50);
-        for(int i = 0; i < len; i++){
-            builder.append(paramKeys[i]).append(":").append(paramValues[i]== null? "": paramValues[i]).append(" ");
-        }
-
-        return builder.toString();
-    }
-
-    public Long count(String detail, String params, String username, Date fromDate, Date toDate){
-        return dao.count(detail, params, username, fromDate, toDate);
-    }
-
-    public List<OptLog> query(String detail, String params, String username, Date fromDate, Date toDate, int offset, int limit){
-        return dao.find(detail, params, username, fromDate, toDate, offset, limit);
+    public List<OptLog> query(String type, String name,  String detail, String username, Date fromDate, Date toDate, int offset, int limit){
+        return dao.find(type, name, detail, username, fromDate, toDate, offset, limit);
     }
 }

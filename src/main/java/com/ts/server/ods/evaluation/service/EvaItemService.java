@@ -43,7 +43,7 @@ public class EvaItemService {
     public EvaItem save(EvaItem t) {
         evaluationService.get(t.getEvaId());
 
-        t.setNum(buildNum(t.getNum()));
+        t.setNum(formatNum(t.getNum()));
         if (dao.hasNumber(t.getEvaId(), t.getNum())) {
             throw new BaseException("编号已经存在");
         }
@@ -54,7 +54,7 @@ public class EvaItemService {
         return dao.findOne(t.getId());
     }
 
-    private String buildNum(String num){
+    private String formatNum(String num){
         num = StringUtils.replaceChars(num, '）', ')');
         String[] array = StringUtils.split(num, "-");
         for(int i =0; i < array.length; i++){
@@ -65,7 +65,7 @@ public class EvaItemService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public EvaItem importItem(EvaItem t){
-        t.setNum(buildNum(t.getNum()));
+        t.setNum(formatNum(t.getNum()));
         if(!dao.hasNumber(t.getEvaId(), t.getNum())){
             t.setId(IdGenerators.uuid());
             dao.insert(t);

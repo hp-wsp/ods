@@ -1,4 +1,4 @@
-package com.ts.server.ods.base.controller.manage.form;
+package com.ts.server.ods.base.controller.declare.form;
 
 import com.ts.server.ods.base.domain.Member;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,11 +22,6 @@ public class MemberSaveForm {
     @ApiModelProperty(value = "登录密码", required = true)
     @NotBlank
     private String password;
-    @ApiModelProperty(value = "单位编号", required = true)
-    @NotBlank
-    private String companyId;
-    @ApiModelProperty(value = "是否为单位管理员", required = true)
-    private boolean manager;
 
     public String getUsername() {
         return username;
@@ -60,22 +55,6 @@ public class MemberSaveForm {
         this.password = password;
     }
 
-    public String getCompanyId() {
-        return companyId;
-    }
-
-    public void setCompanyId(String companyId) {
-        this.companyId = companyId;
-    }
-
-    public boolean isManager() {
-        return manager;
-    }
-
-    public void setManager(boolean manager) {
-        this.manager = manager;
-    }
-
     public Member toDomain(){
         Member t = new Member();
 
@@ -83,8 +62,6 @@ public class MemberSaveForm {
         t.setName(name);
         t.setPhone(phone);
         t.setPassword(password);
-        t.setCompanyId(companyId);
-        t.setManager(manager);
 
         return t;
     }

@@ -10,10 +10,8 @@ import com.ts.server.ods.base.service.MemberService;
 import com.ts.server.ods.common.id.IdGenerators;
 import com.ts.server.ods.etask.dao.DeclarationDao;
 import com.ts.server.ods.etask.dao.TaskCardDao;
-import com.ts.server.ods.evaluation.dao.EvaluationLogDao;
 import com.ts.server.ods.etask.dao.TaskItemDao;
 import com.ts.server.ods.etask.domain.TaskCard;
-import com.ts.server.ods.evaluation.domain.EvaluationLog;
 import com.ts.server.ods.etask.domain.TaskItem;
 import com.ts.server.ods.evaluation.domain.Evaluation;
 import com.ts.server.ods.evaluation.service.EvaluationService;
@@ -26,8 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +40,6 @@ public class TaskCardService {
 
     private final TaskCardDao dao;
     private final TaskItemDao itemDao;
-    private final EvaluationLogDao logDao;
     private final DeclarationDao decDao;
     private final EvaluationService evaluationService;
     private final ManagerService managerService;
@@ -52,13 +47,11 @@ public class TaskCardService {
     private final CompanyService companyService;
 
     @Autowired
-    public TaskCardService(TaskCardDao dao, TaskItemDao itemDao, DeclarationDao decDao,
-                           EvaluationLogDao taskCardLogDao, EvaluationService evaluationService,
+    public TaskCardService(TaskCardDao dao, TaskItemDao itemDao, DeclarationDao decDao, EvaluationService evaluationService,
                            ManagerService managerService, MemberService memberService, CompanyService companyService) {
 
         this.dao = dao;
         this.itemDao = itemDao;
-        this.logDao = taskCardLogDao;
         this.decDao = decDao;
         this.evaluationService = evaluationService;
         this.managerService = managerService;
@@ -198,21 +191,7 @@ public class TaskCardService {
             throw new BaseException("提交失败");
         }
 
-        saveLog(card.getEvaId(), String.format("%s提交申报", card.getCompanyName()), member.getUsername());
-
         return get(id);
-    }
-
-    private void saveLog(String evaId, String detail, String username){
-        EvaluationLog t  = new EvaluationLog();
-
-        t.setId(IdGenerators.uuid());
-        t.setEvaId(evaId);
-        t.setDetail(detail);
-        t.setUsername(username);
-        t.setDay(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
-
-        logDao.insert(t);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -231,8 +210,6 @@ public class TaskCardService {
             throw new BaseException("退回失败");
         }
 
-        saveLog(card.getEvaId(), String.format("%s申报被退回", card.getCompanyName()), username);
-
         return get(id);
     }
 
@@ -247,8 +224,6 @@ public class TaskCardService {
         if(!dao.updateStatus(id, TaskCard.Status.SUBMIT)){
             throw new BaseException("撤销退回失败");
         }
-
-        saveLog(card.getEvaId(), String.format("%s撤销退回", card.getCompanyName()), username);
 
         return get(id);
     }
@@ -285,7 +260,6 @@ public class TaskCardService {
         }
 
         TaskCard newCard = get(id);
-        saveLog(card.getEvaId(), String.format("%s申报评分%d", card.getCompanyName(), card.getGradeScore()),username);
 
         return newCard;
     }

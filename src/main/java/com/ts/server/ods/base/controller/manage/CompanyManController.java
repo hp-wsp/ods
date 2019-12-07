@@ -31,11 +31,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 @RequestMapping("/manage/company")
 @ApiACL({"ROLE_SYS"})
 @Api(value = "/manage/company", tags = "单位管理API接口")
-public class CompanyManageController {
+public class CompanyManController {
     private final CompanyService service;
 
     @Autowired
-    public CompanyManageController(CompanyService service) {
+    public CompanyManController(CompanyService service) {
         this.service = service;
     }
 

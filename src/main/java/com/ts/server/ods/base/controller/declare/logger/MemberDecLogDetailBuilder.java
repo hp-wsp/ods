@@ -1,8 +1,8 @@
-package com.ts.server.ods.base.controller.manage.logger;
+package com.ts.server.ods.base.controller.declare.logger;
 
-import com.ts.server.ods.base.controller.manage.form.ManagerUpdateForm;
+import com.ts.server.ods.base.controller.manage.form.MemberUpdateForm;
+import com.ts.server.ods.base.domain.Member;
 import com.ts.server.ods.controller.form.PasswordResetForm;
-import com.ts.server.ods.base.domain.Manager;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.logger.aop.annotation.ApiLogDetailBuilder;
@@ -10,14 +10,13 @@ import org.aspectj.lang.JoinPoint;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * 构建管理员日志
+ * 构建操作申报员日志
  *
- * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
+ * @author <a href="hhywangwei@gmail.com">WangWei</a>
  */
-public class ManagerLogDetailBuilder {
-
+public class MemberDecLogDetailBuilder {
     /**
-     * 构建删除管理员日志
+     * 构建删除申报员日志
      */
     public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
@@ -31,25 +30,25 @@ public class ManagerLogDetailBuilder {
     };
 
     /**
-     * 构建新增管理员日志
+     * 构建新增申报员日志
      */
     public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<Manager> result = (ResultVo<Manager>)joinPoint.getTarget();
-            Manager t = result.getRs();
+            ResultVo<Member> result = (ResultVo<Member>)joinPoint.getTarget();
+            Member t = result.getRs();
             return String.format("编号:%s;用户名:%s", t.getId(), t.getUsername());
         }
     }
 
     /**
-     * 构建修改管理员日志
+     * 构建修改申报员日志
      */
     public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ManagerUpdateForm form = (ManagerUpdateForm) joinPoint.getArgs()[0];
+            MemberUpdateForm form = (MemberUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
         }
     }
