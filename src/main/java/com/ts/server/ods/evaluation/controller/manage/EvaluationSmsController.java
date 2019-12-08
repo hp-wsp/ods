@@ -1,18 +1,17 @@
 package com.ts.server.ods.evaluation.controller.manage;
 
-import com.ts.server.ods.SmsProperties;
 import com.ts.server.ods.base.service.MemberService;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultVo;
-import com.ts.server.ods.etask.service.TaskCardService;
+import com.ts.server.ods.sms.SmsSender;
+import com.ts.server.ods.taskcard.service.TaskCardService;
 import com.ts.server.ods.evaluation.controller.manage.logger.EvaluationSmsLogDetailBuilder;
 import com.ts.server.ods.evaluation.controller.manage.vo.ExportProgressVo;
 import com.ts.server.ods.evaluation.service.EvaluationService;
-import com.ts.server.ods.evaluation.service.runner.LaunchSmsRunner;
+import com.ts.server.ods.evaluation.runner.LaunchSmsRunner;
 import com.ts.server.ods.exec.OdsExecutorService;
 import com.ts.server.ods.logger.aop.annotation.EnableApiLogger;
 import com.ts.server.ods.security.annotation.ApiACL;
-import com.ts.server.ods.sms.service.SmsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,21 +34,19 @@ public class EvaluationSmsController {
     private final EvaluationService service;
     private final TaskCardService taskCardService;
     private final MemberService memberService;
-    private final SmsService smsService;
     private final OdsExecutorService executorService;
-    private final SmsProperties properties;
+    private final SmsSender smsSender;
 
     @Autowired
     public EvaluationSmsController(EvaluationService service, TaskCardService taskCardService,
-                                   MemberService memberService, SmsService smsService,
-                                   OdsExecutorService executorService, SmsProperties properties) {
+                                   MemberService memberService, OdsExecutorService executorService,
+                                   SmsSender smsSender) {
 
         this.service = service;
         this.taskCardService = taskCardService;
         this.memberService = memberService;
-        this.smsService = smsService;
         this.executorService = executorService;
-        this.properties = properties;
+        this.smsSender = smsSender;
     }
 
     @GetMapping(value = "declare/send/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -57,7 +54,7 @@ public class EvaluationSmsController {
     @ApiOperation("发送开始评审测评短信")
     public ResultVo<OkVo> sendDeclare(@PathVariable("id")String id){
         executorService.submit(buildTaskKey(id), "发送测评开启短信",
-                new LaunchSmsRunner(service, taskCardService, memberService, smsService, properties, id));
+                new LaunchSmsRunner(service, taskCardService, memberService, id, smsSender));
         return ResultVo.success(new OkVo(true));
     }
 

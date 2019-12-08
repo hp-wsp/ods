@@ -3,10 +3,12 @@ package com.ts.server.ods.base.service;
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.dao.CompanyDao;
 import com.ts.server.ods.base.domain.Company;
+import com.ts.server.ods.base.event.CompanyEvent;
 import com.ts.server.ods.common.id.IdGenerators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,12 +28,15 @@ public class CompanyService {
 
     private final CompanyDao dao;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public CompanyService(CompanyDao dao, MemberService memberService) {
+    public CompanyService(CompanyDao dao, MemberService memberService,
+                          ApplicationEventPublisher publisher) {
 
         this.dao = dao;
         this.memberService = memberService;
+        this.publisher = publisher;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -48,7 +53,13 @@ public class CompanyService {
             throw new BaseException("修单位失败");
         }
 
+        notifyEvent(t.getId(), "update");
+
         return get(t.getId());
+    }
+
+    private void notifyEvent(String id, String event){
+        publisher.publishEvent(new CompanyEvent(id, event));
     }
 
     public Company get(String id){
@@ -66,6 +77,9 @@ public class CompanyService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
+
+        notifyEvent(id, "delete");
+
         boolean ok = dao.delete(id);
         if(ok){
             memberService.deleteMembers(id);

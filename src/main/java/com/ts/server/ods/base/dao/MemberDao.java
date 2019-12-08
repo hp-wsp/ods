@@ -56,6 +56,12 @@ public class MemberDao {
         return jdbcTemplate.update(sql, t.getName(), t.getPhone(), t.isManager(), t.getId()) > 0;
     }
 
+    public boolean notHasMember(String companyId){
+        final String sql = "SELECT COUNT(id) FROM b_member WHERE company_id = ? AND is_delete = false";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{companyId}, Integer.class);
+        return count != null && count == 0;
+    }
+
     public boolean delete(String id){
         final String sql = "UPDATE b_member SET username = CONCAT(username,'@', ?), is_delete = true WHERE id = ?";
 
@@ -63,9 +69,19 @@ public class MemberDao {
         return jdbcTemplate.update(sql, random, id) > 0;
     }
 
+    public void deleteMembers(String companyId){
+        final String sql = "DELETE FROM b_member WHERE company_id = ?";
+        jdbcTemplate.update(sql, companyId);
+    }
+
     public boolean updatePassword(String id, String password){
         final String sql = "UPDATE b_member SET password = ? WHERE id = ? AND is_delete = false";
         return jdbcTemplate.update(sql, password, id) > 0;
+    }
+
+    public void cleanManager(String companyId){
+        final String sql = "UPDATE b_member SET is_manage = ? WHERE company_id = ? AND is_delete = false";
+        jdbcTemplate.update(sql, false, companyId);
     }
 
     public Member findOne(String id){
@@ -76,6 +92,11 @@ public class MemberDao {
     public Member findOneByUsername(String username){
         final String sql = "SELECT * FROM b_member WHERE username = ? AND is_delete = false";
         return jdbcTemplate.queryForObject(sql, new Object[]{username}, mapper);
+    }
+
+    public Member findManager(String companyId){
+        final String sql = "SELECT * FROM b_member WHERE company_id = ? AND is_manager = true AND is_delete = false";
+        return  jdbcTemplate.queryForObject(sql, new Object[]{companyId}, mapper);
     }
 
     public boolean hasUsername(String username){

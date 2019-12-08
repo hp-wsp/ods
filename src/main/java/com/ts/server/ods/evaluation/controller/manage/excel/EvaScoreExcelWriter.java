@@ -1,7 +1,7 @@
 package com.ts.server.ods.evaluation.controller.manage.excel;
 
 import com.ts.server.ods.common.excel.writer.HttpExcelWriter;
-import com.ts.server.ods.etask.domain.TaskCard;
+import com.ts.server.ods.taskcard.domain.TaskCard;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;

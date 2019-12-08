@@ -3,11 +3,13 @@ package com.ts.server.ods.base.service;
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.dao.MemberDao;
 import com.ts.server.ods.base.domain.Member;
+import com.ts.server.ods.base.event.MemberEvent;
 import com.ts.server.ods.common.id.IdGenerators;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,10 +29,12 @@ public class MemberService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemberService.class);
 
     private final MemberDao dao;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public MemberService(MemberDao dao) {
+    public MemberService(MemberDao dao, ApplicationEventPublisher publisher) {
         this.dao = dao;
+        this.publisher = publisher;
     }
 
     /**
@@ -46,6 +50,7 @@ public class MemberService {
         }
 
         t.setId(IdGenerators.uuid());
+        t.setManager(dao.notHasMember(t.getCompanyId()));
         dao.insert(t);
 
         return dao.findOne(t.getId());
@@ -59,9 +64,21 @@ public class MemberService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Member update(Member t){
+        Member o = dao.findOne(t.getId());
+
+        if(!o.isManager() && t.isManager()){
+            dao.cleanManager(t.getCompanyId());
+        }
+
         if(!dao.update(t)){
             throw new BaseException("修改申报员失败");
         }
+
+        if(!StringUtils.equals(t.getUsername(), o.getUsername()) ||
+                !StringUtils.equals(t.getName(), o.getName())){
+            publisher.publishEvent(new MemberEvent(t.getId(), "update"));
+        }
+
         return dao.findOne(t.getId());
     }
 
@@ -69,17 +86,17 @@ public class MemberService {
      * 更新申报员为单位管理员
      *
      * @param id 申报员编号
-     * @param isManager true:为管理员
      * @return {@link Member}
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public Member updateManager(String id, boolean isManager){
+    public Member activeManage(String id){
         Member t = get(id);
-        if(t.isManager() == isManager){
+        if(t.isManager()){
             return t;
         }
 
-        t.setManager(isManager);
+        dao.cleanManager(t.getCompanyId());
+        t.setManager(true);
         return update(t);
     }
 
@@ -94,6 +111,20 @@ public class MemberService {
             return dao.findOne(id);
         }catch (DataAccessException e){
             throw new BaseException("申报员不存在");
+        }
+    }
+
+    /**
+     * 获取单位管理员
+     *
+     * @param companyId 单位编号
+     * @return 单位管理员
+     */
+    public Member getManager(String companyId){
+        try{
+            return dao.findManager(companyId);
+        }catch (DataAccessException e){
+            throw new BaseException("单位管理员不存在");
         }
     }
 
@@ -136,6 +167,13 @@ public class MemberService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
+        Member t = get(id);
+        if(t.isManager()){
+            throw new BaseException("管理员不能删除");
+        }
+
+        publisher.publishEvent(new MemberEvent(id, "delete"));
+
         return dao.delete(id);
     }
 
@@ -145,7 +183,7 @@ public class MemberService {
      * @param companyId 单位编号
      */
     public void deleteMembers(String companyId){
-        queryByCompanyId(companyId).forEach(e -> delete(e.getId()));
+        dao.deleteMembers(companyId);
     }
 
     /**
@@ -172,7 +210,7 @@ public class MemberService {
      *
      * @param id 申报员密码
      * @param newPassword 新密码
-     * @return
+     * @return true:重置成功
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean resetPassword(String id, String newPassword){

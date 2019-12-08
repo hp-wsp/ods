@@ -2,9 +2,9 @@ package com.ts.server.ods.evaluation.service;
 
 import com.ts.server.ods.SmsProperties;
 import com.ts.server.ods.base.service.MemberService;
-import com.ts.server.ods.etask.service.TaskCardService;
+import com.ts.server.ods.taskcard.service.TaskCardService;
 import com.ts.server.ods.evaluation.domain.Evaluation;
-import com.ts.server.ods.evaluation.service.runner.LaunchSmsRunner;
+import com.ts.server.ods.evaluation.runner.LaunchSmsRunner;
 import com.ts.server.ods.sms.service.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -1,19 +1,11 @@
 package com.ts.server.ods.evaluation.service;
 
 import com.ts.server.ods.BaseException;
-import com.ts.server.ods.base.dao.CompanyDao;
-import com.ts.server.ods.base.dao.GradeRateDao;
 import com.ts.server.ods.common.id.IdGenerators;
-import com.ts.server.ods.etask.dao.DeclarationDao;
-import com.ts.server.ods.etask.dao.TaskCardDao;
-import com.ts.server.ods.etask.dao.TaskItemDao;
 import com.ts.server.ods.evaluation.dao.EvaItemDao;
 import com.ts.server.ods.evaluation.dao.EvaluationDao;
 import com.ts.server.ods.evaluation.domain.Evaluation;
-import com.ts.server.ods.evaluation.service.event.EvaCloseDecEvent;
-import com.ts.server.ods.evaluation.service.event.EvaCloseGradeEvent;
-import com.ts.server.ods.evaluation.service.event.EvaOpenDecEvent;
-import com.ts.server.ods.evaluation.service.event.EvaOpenGradeEvent;
+import com.ts.server.ods.evaluation.event.EvaluationEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -35,21 +27,16 @@ public class EvaluationService {
 
     private final EvaluationDao dao;
     private final EvaItemDao itemDao;
-    private final TaskCardDao taskCardDao;
-    private final DeclarationDao declarationDao;
+    private final ImportEvaluationService importService;
     private final ApplicationEventPublisher publisher;
-    private final ImportEvaluation importEvaluation;
 
     @Autowired
-    public EvaluationService(EvaluationDao dao, EvaItemDao itemDao, TaskCardDao taskCardDao,
-                             TaskItemDao taskItemDao, DeclarationDao declarationDao,
-                             CompanyDao companyDao, GradeRateDao gradeRateDao, ApplicationEventPublisher publisher) {
+    public EvaluationService(EvaluationDao dao, EvaItemDao itemDao,
+                             ImportEvaluationService importService, ApplicationEventPublisher publisher) {
         this.dao = dao;
         this.itemDao = itemDao;
-        this.taskCardDao = taskCardDao;
-        this.declarationDao = declarationDao;
+        this.importService = importService;
         this.publisher = publisher;
-        this.importEvaluation = new ImportEvaluation(itemDao, taskCardDao, taskItemDao, companyDao, gradeRateDao);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -63,7 +50,7 @@ public class EvaluationService {
             if(!dao.has(importId)){
                 throw new BaseException("导入评测不存在");
             }
-            importEvaluation.importEvaluation(t, importId);
+            importService.importEvaluation(t, importId);
         }
 
         return dao.findOne(t.getId());
@@ -71,6 +58,11 @@ public class EvaluationService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Evaluation update(Evaluation t){
+        Evaluation o = get(t.getId());
+
+        if(!StringUtils.equals(o.getName(), t.getName())){
+            notifyEvent(t.getId(), "update");
+        }
 
         if(!dao.update(t)){
             throw new BaseException("修改测评失败");
@@ -79,22 +71,22 @@ public class EvaluationService {
         return dao.findOne(t.getId());
     }
 
+    private void notifyEvent(String id, String event){
+        publisher.publishEvent(new EvaluationEvent(id, event));
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public Evaluation updateStatus(String id, Evaluation.Status status){
         if(!dao.updateStatus(id, status)){
             throw new BaseException("修改状态失败");
         }
 
-        if(status == Evaluation.Status.OPEN) {
-            publisher.publishEvent(new EvaOpenGradeEvent(id));
-            return get(id);
+        if(status == Evaluation.Status.CLOSE){
+            dao.updateOpenDec(id, false);
         }
 
-        Evaluation t = get(id);
-        if(t.isOpenDec()){
-            closeDec(id);
-        }
-        publisher.publishEvent(new EvaCloseGradeEvent(id));
+        notifyEvent(id, "updateStatus");
+
         return get(id);
     }
 
@@ -118,11 +110,6 @@ public class EvaluationService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
-
-        if(declarationDao.hasByEvaId(id)){
-            throw new BaseException("评测已经申报不能删除");
-        }
-
         Evaluation t = get(id);
         if(t.getStatus() == Evaluation.Status.OPEN){
             throw new BaseException("评测已经开启不能删除");
@@ -132,11 +119,9 @@ public class EvaluationService {
             throw new BaseException("删除评测失败");
         }
 
-        if(taskCardDao.hasByEvaId(id)){
-            throw new BaseException("已经分配测评任务不能删除");
-        }
-
         itemDao.deleteByEvaId(id);
+
+        notifyEvent(id, "delete");
 
         return true;
     }
@@ -153,7 +138,7 @@ public class EvaluationService {
             throw new BaseException("开启测评申报失败");
         }
 
-        publisher.publishEvent(new EvaOpenDecEvent(id));
+        notifyEvent(id, "openDec");
 
         return get(id);
     }
@@ -170,7 +155,7 @@ public class EvaluationService {
             throw new BaseException("关闭申报失败");
         }
 
-        publisher.publishEvent(new EvaCloseDecEvent(id));
+        notifyEvent(id, "closeDec");
 
         return get(id);
     }

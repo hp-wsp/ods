@@ -2,11 +2,9 @@ package com.ts.server.ods;
 
 import com.ts.server.ods.base.domain.GradeRate;
 import com.ts.server.ods.base.service.GradeRateService;
-import com.ts.server.ods.common.excel.reader.ExcelReader;
-import com.ts.server.ods.etask.domain.TaskCard;
-import com.ts.server.ods.etask.domain.TaskItem;
-import com.ts.server.ods.etask.service.TaskCardService;
-import com.ts.server.ods.etask.service.TaskItemService;
+import com.ts.server.ods.taskcard.domain.TaskCardItem;
+import com.ts.server.ods.taskcard.service.TaskCardService;
+import com.ts.server.ods.taskcard.service.TaskItemService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
@@ -52,7 +50,7 @@ public class UpdateTest {
 ////                return ;
 ////            }
 ////
-////            TaskItem t = new TaskItem();
+////            TaskCardItem t = new TaskCardItem();
 ////            t.setCardId(card.getId());
 ////            t.setEvaNum(getCellContent(r, 1));
 ////            t.setRequireContent(getCellContent(r, 2));
@@ -80,11 +78,11 @@ public class UpdateTest {
         return s;
     }
 
-    private List<TaskItem.TaskItemResult> buildResults(String resultStr, int score, Map<String, Integer> gradeRates){
+    private List<TaskCardItem.TaskItemResult> buildResults(String resultStr, int score, Map<String, Integer> gradeRates){
         return Arrays.stream(StringUtils.split(resultStr, " "))
                 .map(StringUtils::trim)
                 .filter(e -> e.length() > 0)
-                .map(e -> new TaskItem.TaskItemResult(e, (score * gradeRates.getOrDefault(e, 0))/100))
+                .map(e -> new TaskCardItem.TaskItemResult(e, (score * gradeRates.getOrDefault(e, 0))/100))
                 .collect(Collectors.toList());
     }
 

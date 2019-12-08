@@ -2,8 +2,8 @@ package com.ts.server.ods.evaluation.service;
 
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.common.id.IdGenerators;
-import com.ts.server.ods.etask.dao.DeclarationDao;
-import com.ts.server.ods.etask.dao.TaskItemDao;
+import com.ts.server.ods.taskcard.dao.DeclarationDao;
+import com.ts.server.ods.taskcard.dao.TaskCardItemDao;
 import com.ts.server.ods.evaluation.dao.EvaItemDao;
 import com.ts.server.ods.evaluation.domain.EvaItem;
 import org.apache.commons.lang3.StringUtils;
@@ -25,12 +25,12 @@ import java.util.List;
 public class EvaItemService {
 
     private final EvaItemDao dao;
-    private final TaskItemDao taskItemDao;
+    private final TaskCardItemDao taskItemDao;
     private final DeclarationDao declarationDao;
     private final EvaluationService evaluationService;
 
     @Autowired
-    public EvaItemService(EvaItemDao dao, TaskItemDao taskItemDao,
+    public EvaItemService(EvaItemDao dao, TaskCardItemDao taskItemDao,
                           DeclarationDao declarationDao, EvaluationService evaluationService) {
 
         this.dao = dao;

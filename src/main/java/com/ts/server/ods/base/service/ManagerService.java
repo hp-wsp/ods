@@ -2,13 +2,14 @@ package com.ts.server.ods.base.service;
 
 import com.ts.server.ods.BaseException;
 import com.ts.server.ods.base.dao.ManagerDao;
-import com.ts.server.ods.base.domain.Company;
 import com.ts.server.ods.base.domain.Manager;
+import com.ts.server.ods.base.event.CompanyEvent;
 import com.ts.server.ods.common.id.IdGenerators;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,10 +29,12 @@ public class ManagerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerService.class);
 
     private final ManagerDao dao;
+    private final ApplicationEventPublisher publisher;
 
     @Autowired
-    public ManagerService(ManagerDao dao) {
+    public ManagerService(ManagerDao dao, ApplicationEventPublisher publisher) {
         this.dao = dao;
+        this.publisher = publisher;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -54,7 +57,13 @@ public class ManagerService {
             throw new BaseException("修改管理失败");
         }
 
+        notifyEvent(t.getId(), "update");
+
         return dao.findOne(t.getId());
+    }
+
+    private void notifyEvent(String id, String event){
+        publisher.publishEvent(new CompanyEvent(id, event));
     }
 
     public Manager get(String id){
@@ -89,6 +98,7 @@ public class ManagerService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
+        notifyEvent(id, "delete");
         return dao.delete(id);
     }
 

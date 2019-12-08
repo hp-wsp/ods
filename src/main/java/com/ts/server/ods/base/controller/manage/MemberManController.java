@@ -63,18 +63,11 @@ public class MemberManController {
         return ResultVo.success(member);
     }
 
-    @PutMapping(value = "activeManager/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
+    @PutMapping(value = "activeManage/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
     @EnableApiLogger(name = "设置申报员为单位管理员", buildDetail = MemberLogDetailBuilder.ActiveManagerBuilder.class)
     @ApiOperation("设置申报员为单位管理员")
-    public ResultVo<Member> activeManager(@PathVariable("id") String id){
-        return ResultVo.success(service.updateManager(id, true));
-    }
-
-    @PutMapping(value = "inactiveManager/{id}", produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "取消申报员为单位管理员", buildDetail = MemberLogDetailBuilder.InactiveManagerBuilder.class)
-    @ApiOperation("取消申报员为单位管理员")
-    public ResultVo<Member> inactiveManager(@PathVariable("id") String id){
-        return ResultVo.success(service.updateManager(id, false));
+    public ResultVo<Member> activeManage(@PathVariable("id") String id){
+        return ResultVo.success(service.activeManage(id));
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
