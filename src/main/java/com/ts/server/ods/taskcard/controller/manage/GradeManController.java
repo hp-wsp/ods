@@ -106,7 +106,7 @@ public class GradeManController {
             throw new BaseException("权限不够不");
         }
 
-        TaskCard newCard = cardService.back(id, credential.getUsername());
+        TaskCard newCard = cardService.back(id);
         taskCardSmsService.back(newCard);
         return ResultVo.success(newCard);
     }
@@ -122,7 +122,7 @@ public class GradeManController {
             throw new BaseException("权限不够不");
         }
 
-        TaskCard newCard = cardService.cancelBack(id, credential.getUsername());
+        TaskCard newCard = cardService.cancelBack(id);
         taskCardSmsService.cancelBack(newCard);
         return ResultVo.success(newCard);
     }

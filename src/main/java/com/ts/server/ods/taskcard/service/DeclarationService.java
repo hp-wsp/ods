@@ -81,29 +81,7 @@ public class DeclarationService {
             throw new BaseException(406, "权限错误不能申报材料");
         }
 
-
-        String id = IdGenerators.uuid();
-        String viewUrl = exportWordToHtml.export(file, id).orElse("");
-
-        String path = saveFile(card, id, file).orElseThrow(() -> new BaseException("上传申报文件失败") );
-        Declaration t = new Declaration();
-        t.setId(IdGenerators.uuid());
-        String filename = StringUtils.remove(file.getOriginalFilename(), " ");
-        LOGGER.debug("Declaration filename itemId={}, filename={}", id, filename);
-        t.setFileName(filename);
-        t.setFileSize((int)file.getSize());
-        t.setCardId(item.getCardId());
-        t.setCardItemId(item.getId());
-        t.setEvaItemId(item.getEvaItemId());
-        t.setPath(path);
-        LOGGER.debug("Upload file contentType={}", file.getContentType());
-        t.setContentType(file.getContentType());
-        Member member = memberService.get(memberId);
-        t.setDecUsername(member.getUsername());
-
-        dao.insert(t);
-
-        saveResource(t, viewUrl);
+        Declaration t = saveDeclaration(card, item, memberId, file);
 
         itemService.updateDeclare(item.getId(), true);
         if(StringUtils.isNotBlank(item.getGradeLevel())){
@@ -132,10 +110,36 @@ public class DeclarationService {
             LOGGER.error("Upload file cardId={},cardItemId={},throw={}", card.getId(), id, e.getMessage());
             return Optional.empty();
         }
-
     }
 
-    private void saveResource(Declaration declaration, String viewUrl){
+    private Declaration saveDeclaration(TaskCard card, TaskCardItem item, String memberId, MultipartFile file){
+        String id = IdGenerators.uuid();
+
+        String path = saveFile(card, id, file).orElseThrow(() -> new BaseException("上传申报文件失败") );
+        Declaration t = new Declaration();
+        t.setId(IdGenerators.uuid());
+        String filename = StringUtils.remove(file.getOriginalFilename(), " ");
+        t.setFileName(filename);
+        t.setFileSize((int)file.getSize());
+        t.setCardId(item.getCardId());
+        t.setCardItemId(item.getId());
+        t.setEvaItemId(item.getEvaItemId());
+        t.setPath(path);
+        t.setContentType(file.getContentType());
+        Member member = memberService.get(memberId);
+        t.setDecUsername(member.getUsername());
+
+        LOGGER.debug("Declaration filename id={}, itemId={}, filename={}, contentType={}",
+                id, item.getId(), filename, file.getContentType());
+
+        dao.insert(t);
+
+        saveResource(t, file);
+
+        return t;
+    }
+
+    private void saveResource(Declaration declaration, MultipartFile file){
         Resource t = new Resource();
 
         t.setId(declaration.getId());
@@ -144,8 +148,7 @@ public class DeclarationService {
         t.setFileSize(declaration.getFileSize());
         t.setContentType(declaration.getContentType());
         t.setType("declaration");
-        t.setViewUrl(viewUrl);
-
+        exportWordToHtml.export(file, t.getId()).ifPresent(t::setViewUrl);
         resourceService.save(t);
     }
 

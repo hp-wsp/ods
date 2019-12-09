@@ -162,7 +162,7 @@ public class TaskItemService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public TaskCardItem grade(String id, String level, int score, String remark, String assId){
+    public TaskCardItem grade(String id, String level, int score, String remark, String managerId){
         TaskCardItem item = get(id);
         TaskCard card = cardService.get(item.getCardId());
 
@@ -178,7 +178,7 @@ public class TaskItemService {
             throw new BaseException("评测已经退回");
         }
 
-        if(!StringUtils.equals(card.getAssId(), assId)){
+        if(!StringUtils.equals(card.getAssId(), managerId)){
             throw new BaseException("无权限打分");
         }
 

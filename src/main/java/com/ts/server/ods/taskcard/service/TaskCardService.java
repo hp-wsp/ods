@@ -180,7 +180,7 @@ public class TaskCardService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public TaskCard back(String id, String username){
+    public TaskCard back(String id){
         TaskCard card = get(id);
 
         if(card.getStatus() == TaskCard.Status.WAIT){
@@ -199,7 +199,7 @@ public class TaskCardService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public TaskCard cancelBack(String id, String username){
+    public TaskCard cancelBack(String id){
         TaskCard card = get(id);
 
         if(card.getStatus() != TaskCard.Status.BACK){
