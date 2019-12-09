@@ -19,4 +19,4 @@ jobs:
     - name: checkout dev2
       run: git switch -c dev2
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn package
