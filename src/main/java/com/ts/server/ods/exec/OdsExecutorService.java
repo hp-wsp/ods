@@ -49,7 +49,7 @@ public class OdsExecutorService implements DisposableBean {
         boolean success = addTask(taskKey, runnable);
         LOGGER.debug("Add task success = {}", success);
         if(!success){
-            throw new BaseException(305, "任务正在执行请稍等...");
+            throw new BaseException(305, "任务正在执行请稍等 ...");
         }
         Future<?> future = executorService.submit(createRunner(taskKey, remark, runnable));
         LOGGER.debug("Submit task success taskId={}, isDone={}", taskKey, future.isDone());
