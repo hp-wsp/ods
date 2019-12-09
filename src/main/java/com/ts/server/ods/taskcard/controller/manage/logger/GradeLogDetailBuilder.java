@@ -20,7 +20,7 @@ public class GradeLogDetailBuilder {
     public final static class GradeBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<TaskCardItem> result = (ResultVo<TaskCardItem>)joinPoint.getTarget();
             TaskCardItem t = result.getRs();
             return String.format("编号:%s;测评指标编号:%s;分等级:%s", t.getId(), t.getEvaNum(), t.getGradeLevel());
@@ -33,7 +33,7 @@ public class GradeLogDetailBuilder {
     public static class BackBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<TaskCard> result = (ResultVo<TaskCard>)joinPoint.getTarget();
             TaskCard t = result.getRs();
             return String.format("编号:%s;单位:%s", t.getId(), t.getCompanyName());

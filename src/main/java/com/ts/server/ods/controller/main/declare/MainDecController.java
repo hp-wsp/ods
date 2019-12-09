@@ -64,7 +64,7 @@ public class MainDecController {
 
 
     @PostMapping(value = "login", consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "申报人员登录", buildDetail = LoginLogDetailBuilder.class, obtainUsername = ObtainLoginUsername.class)
+    @EnableApiLogger(name = "申报人员登录", type = "loginDec", buildDetail = LoginLogDetailBuilder.class, obtainUsername = ObtainLoginUsername.class)
     @ApiOperation("申报人员登录")
     public ResultVo<LoginVo<Member>> memberLogin(@Valid @RequestBody LoginForm form){
 

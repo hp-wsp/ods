@@ -2,8 +2,6 @@ package com.ts.server.ods.logger.aop;
 
 import com.ts.server.ods.logger.aop.annotation.*;
 import com.ts.server.ods.logger.service.OptLogService;
-import com.ts.server.ods.security.Credential;
-import com.ts.server.ods.security.CredentialContextUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
@@ -26,7 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class ApiLoggerAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiLoggerAspect.class);
-    private static final ObtainUsername DEFAULT_OBTAIN_USERNAME = new NoneObtainUsername();
+    private static final ObtainUsername DEFAULT_OBTAIN_USERNAME = new CredentialObtainUsername();
 
     private final OptLogService logService;
     private final ConcurrentMap<Class<? extends ApiLogDetailBuilder>, ApiLogDetailBuilder> builders;
@@ -41,17 +39,17 @@ public class ApiLoggerAspect {
 
     @Pointcut("@annotation(com.ts.server.ods.logger.aop.annotation.EnableApiLogger)")
     public void logging(){
-
+        //none instance
     }
 
-    @AfterReturning("@annotation(loggerAnn)")
-    public void after(JoinPoint joinPoint, EnableApiLogger loggerAnn){
+    @AfterReturning(value = "@annotation(loggerAnn)", returning = "returnObj")
+    public void after(JoinPoint joinPoint, EnableApiLogger loggerAnn, Object returnObj){
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
         String username = getUsername(joinPoint, attributes, loggerAnn.obtainUsername());
 
         ApiLogDetailBuilder builder = getInstance(builders, loggerAnn.buildDetail()).orElse(new NoneLogDetailBuilder());
-        String detail = builder.build(joinPoint, attributes);
+        String detail = builder.build(joinPoint, attributes, returnObj);
 
         logService.save(loggerAnn.type(), loggerAnn.name(), username, detail);
     }
@@ -79,12 +77,7 @@ public class ApiLoggerAspect {
      * @return 用户名
      */
     private String getUsername(JoinPoint joinPoint, ServletRequestAttributes attributes, Class<? extends  ObtainUsername> clazz){
-        if(clazz != null){
-            ObtainUsername obtainUsername = getInstance(obtains, clazz).orElse(DEFAULT_OBTAIN_USERNAME);
-            return obtainUsername.obtain(joinPoint, attributes);
-        }
-
-        Optional<Credential> optional = CredentialContextUtils.getCredential();
-        return optional.map(Credential::getUsername).orElse("");
+        ObtainUsername obtainUsername = getInstance(obtains, clazz).orElse(DEFAULT_OBTAIN_USERNAME);
+        return obtainUsername.obtain(joinPoint, attributes);
     }
 }

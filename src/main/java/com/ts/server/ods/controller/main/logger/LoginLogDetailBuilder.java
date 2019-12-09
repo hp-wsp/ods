@@ -13,7 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class LoginLogDetailBuilder implements ApiLogDetailBuilder {
 
     @Override
-    public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+    public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
         return String.format("IP:%s", HttpUtils.getHostname(attributes.getRequest()));
     }
 }

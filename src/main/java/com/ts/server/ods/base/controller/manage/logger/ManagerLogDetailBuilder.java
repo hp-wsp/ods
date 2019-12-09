@@ -22,8 +22,8 @@ public class ManagerLogDetailBuilder {
     public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<OkVo> result = (ResultVo<OkVo>)returnObj;
             boolean ok = result.getRs().isOk();
             String id = (String)joinPoint.getArgs()[0];
             return String.format("删除:%s;编号:%s", ok?"成功":"失败", id);
@@ -36,7 +36,7 @@ public class ManagerLogDetailBuilder {
     public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<Manager> result = (ResultVo<Manager>)joinPoint.getTarget();
             Manager t = result.getRs();
             return String.format("编号:%s;用户名:%s", t.getId(), t.getUsername());
@@ -48,7 +48,7 @@ public class ManagerLogDetailBuilder {
      */
     public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ManagerUpdateForm form = (ManagerUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
         }
@@ -60,7 +60,7 @@ public class ManagerLogDetailBuilder {
     public final static class ResetPasswordBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             PasswordResetForm form = (PasswordResetForm) joinPoint.getArgs()[0];
             ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
             boolean ok = result.getRs().isOk();

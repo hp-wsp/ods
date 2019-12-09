@@ -99,6 +99,10 @@ public class ManagerService {
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean delete(String id){
         notifyEvent(id, "delete");
+        Manager t = get(id);
+        if(t.isRoot()){
+            throw new BaseException("超级管理员不能删除");
+        }
         return dao.delete(id);
     }
 

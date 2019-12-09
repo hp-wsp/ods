@@ -23,8 +23,8 @@ public class EvaItemLogDetailBuilder {
     public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<OkVo> result = (ResultVo<OkVo>)returnObj;
             boolean ok = result.getRs().isOk();
             String id = (String)joinPoint.getArgs()[0];
             return String.format("删除:%s;编号:%s", ok?"成功":"失败", id);
@@ -37,8 +37,8 @@ public class EvaItemLogDetailBuilder {
     public static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<EvaItem> result = (ResultVo<EvaItem>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<EvaItem> result = (ResultVo<EvaItem>)returnObj;
             EvaItem t = result.getRs();
             return String.format("编号:%s;测评指标编号:%s", t.getId(), t.getNum());
         }
@@ -49,7 +49,7 @@ public class EvaItemLogDetailBuilder {
      */
     public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             EvaItemUpdateForm form = (EvaItemUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
         }
@@ -61,7 +61,7 @@ public class EvaItemLogDetailBuilder {
     public final static class BatchDeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             BatchDeleteForm form = (BatchDeleteForm) joinPoint.getArgs()[0];
             ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
             boolean ok = result.getRs().isOk();
@@ -75,9 +75,9 @@ public class EvaItemLogDetailBuilder {
     public final static class ImportBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             String evnId = (String)joinPoint.getArgs()[1];
-            ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
+            ResultVo<OkVo> result = (ResultVo<OkVo>)returnObj;
             boolean ok = result.getRs().isOk();
             return String.format("导入:%s;测评编号:%s",  ok?"成功":"失败", evnId);
         }

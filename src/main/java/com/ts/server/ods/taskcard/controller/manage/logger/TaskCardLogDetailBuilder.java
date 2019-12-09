@@ -21,7 +21,7 @@ public class TaskCardLogDetailBuilder {
     public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
             boolean ok = result.getRs().isOk();
             String id = (String)joinPoint.getArgs()[0];
@@ -35,7 +35,7 @@ public class TaskCardLogDetailBuilder {
     public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<TaskCard> result = (ResultVo<TaskCard>)joinPoint.getTarget();
             TaskCard t = result.getRs();
             return String.format("编号:%s;测评:%s;单位:%s", t.getId(), t.getEvaName(), t.getCompanyName());
@@ -47,7 +47,7 @@ public class TaskCardLogDetailBuilder {
      */
     public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             TaskCardUpdateForm form = (TaskCardUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
         }

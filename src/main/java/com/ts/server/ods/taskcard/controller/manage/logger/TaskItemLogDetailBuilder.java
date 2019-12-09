@@ -20,7 +20,7 @@ public class TaskItemLogDetailBuilder {
     public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
             boolean ok = result.getRs().isOk();
             String id = (String)joinPoint.getArgs()[0];
@@ -34,7 +34,7 @@ public class TaskItemLogDetailBuilder {
     public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ResultVo<TaskCardItem> result = (ResultVo<TaskCardItem>)joinPoint.getTarget();
             TaskCardItem t = result.getRs();
             return String.format("编号:%s;测评指标编号:%s", t.getId(), t.getEvaNum());
@@ -46,7 +46,7 @@ public class TaskItemLogDetailBuilder {
      */
     public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             TaskItemUpdateForm form = (TaskItemUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
         }
@@ -57,7 +57,7 @@ public class TaskItemLogDetailBuilder {
      */
     public final static class ImportBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             String cardId = (String) joinPoint.getArgs()[1];
             return String.format("测评卡编号:%s", cardId);
         }

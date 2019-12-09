@@ -21,8 +21,8 @@ public class GradeRateLogDetailBuilder {
     public final static class DeleteBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<OkVo> result = (ResultVo<OkVo>)returnObj;
             boolean ok = result.getRs().isOk();
             String id = (String)joinPoint.getArgs()[0];
             return String.format("删除:%s;编号:%s", ok?"成功":"失败", id);
@@ -35,8 +35,8 @@ public class GradeRateLogDetailBuilder {
     public final static class SaveBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<GradeRate> result = (ResultVo<GradeRate>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<GradeRate> result = (ResultVo<GradeRate>)returnObj;
             GradeRate t = result.getRs();
             return String.format("编号:%s;级别:%s;得分比例:%d", t.getId(), t.getLevel(), t.getRate());
         }
@@ -47,7 +47,7 @@ public class GradeRateLogDetailBuilder {
      */
     public final static class UpdateBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             GradeRateUpdateForm form = (GradeRateUpdateForm) joinPoint.getArgs()[0];
             return String.format("编号:%s;详情:%s", form.getId(), form.toDomain().toString());
         }

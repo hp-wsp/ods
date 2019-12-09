@@ -1,11 +1,10 @@
 package com.ts.server.ods.evaluation.service;
 
-import com.ts.server.ods.SmsProperties;
 import com.ts.server.ods.base.service.MemberService;
+import com.ts.server.ods.sms.SmsSender;
 import com.ts.server.ods.taskcard.service.TaskCardService;
 import com.ts.server.ods.evaluation.domain.Evaluation;
 import com.ts.server.ods.evaluation.runner.LaunchSmsRunner;
-import com.ts.server.ods.sms.service.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,18 +25,16 @@ public class EvaluationScheduler {
     private final EvaluationService service;
     private final TaskCardService taskCardService;
     private final MemberService memberService;
-    private final SmsService smsService;
-    private final SmsProperties properties;
+    private final SmsSender smsSender;
 
     @Autowired
     public EvaluationScheduler(EvaluationService service, TaskCardService taskCardService,
-                               MemberService memberService, SmsService smsService, SmsProperties properties) {
+                               MemberService memberService, SmsSender smsSender) {
 
         this.service = service;
         this.taskCardService = taskCardService;
         this.memberService = memberService;
-        this.smsService = smsService;
-        this.properties = properties;
+        this.smsSender = smsSender;
     }
 
     @Scheduled(fixedDelay = 60000L, initialDelay = 60000L)
@@ -70,7 +67,7 @@ public class EvaluationScheduler {
         }
 
         int hour = LocalTime.now().getHour();
-        LaunchSmsRunner runner = new LaunchSmsRunner(service, taskCardService, memberService, smsService, properties, t.getId());
+        LaunchSmsRunner runner = new LaunchSmsRunner(service, taskCardService, memberService, t.getId(), smsSender);
         if(hour > 8 && hour <22){
             runner.run();
             return ;

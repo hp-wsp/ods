@@ -16,7 +16,7 @@ public class EvaluationSmsLogDetailBuilder {
      */
     public final static class SendDeclareBuilder implements ApiLogDetailBuilder {
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             String id = (String)joinPoint.getArgs()[0];
             return String.format("编号:%s", id);
         }

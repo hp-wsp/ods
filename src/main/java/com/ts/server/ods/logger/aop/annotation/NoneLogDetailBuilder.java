@@ -11,7 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class NoneLogDetailBuilder implements ApiLogDetailBuilder {
 
     @Override
-    public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+    public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
         return  "";
     }
 }

@@ -19,8 +19,8 @@ public class TaskCardDecLogDetailBuilder {
     public final static class SubmitBuilder implements ApiLogDetailBuilder {
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<TaskCard> result = (ResultVo<TaskCard>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<TaskCard> result = (ResultVo<TaskCard>)returnObj;
             TaskCard t = result.getRs();
             return String.format("编号:%s;单位:%s", t.getId(), t.getCompanyName());
         }

@@ -15,7 +15,8 @@ public interface ApiLogDetailBuilder {
      *
      * @param joinPoint {@link JoinPoint}
      * @param attributes {@link ServletRequestAttributes}
+     * @param returnObj 方法返回结果
      * @return 日志描述
      */
-    String build(JoinPoint joinPoint, ServletRequestAttributes attributes);
+    String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj);
 }

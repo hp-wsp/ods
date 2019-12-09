@@ -24,7 +24,7 @@ public @interface EnableApiLogger {
      *
      * @return 日志类型
      */
-    String type() default "";
+    String type() default "common";
 
     /**
      * 生成日志描述
@@ -38,5 +38,5 @@ public @interface EnableApiLogger {
      *
      * @return {@link ObtainUsername}
      */
-    Class<? extends  ObtainUsername> obtainUsername() default NoneObtainUsername.class;
+    Class<? extends  ObtainUsername> obtainUsername() default CredentialObtainUsername.class;
 }

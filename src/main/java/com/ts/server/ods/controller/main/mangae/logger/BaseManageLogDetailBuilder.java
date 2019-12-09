@@ -20,8 +20,8 @@ public class BaseManageLogDetailBuilder {
     public static class UpdatePasswordBuilder implements ApiLogDetailBuilder{
         @Override
         @SuppressWarnings("unchecked")
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
-            ResultVo<OkVo> result = (ResultVo<OkVo>)joinPoint.getTarget();
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
+            ResultVo<OkVo> result = (ResultVo<OkVo>)returnObj;
             return String.format("修改密码:%s", result.getRs().isOk()? "成功": "失败");
         }
     }
@@ -32,7 +32,7 @@ public class BaseManageLogDetailBuilder {
     public static class UpdateAccountBuilder implements ApiLogDetailBuilder {
 
         @Override
-        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes) {
+        public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             ManagerInfoForm form = (ManagerInfoForm)joinPoint.getArgs()[0];
             return String.format("姓名:%s;电话:%s", form.getName(), form.getPhone());
         }
