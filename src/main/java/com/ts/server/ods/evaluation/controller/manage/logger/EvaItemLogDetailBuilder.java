@@ -1,6 +1,7 @@
 package com.ts.server.ods.evaluation.controller.manage.logger;
 
 import com.ts.server.ods.controller.form.BatchDeleteForm;
+import com.ts.server.ods.controller.vo.ImportVo;
 import com.ts.server.ods.controller.vo.OkVo;
 import com.ts.server.ods.controller.vo.ResultVo;
 import com.ts.server.ods.evaluation.controller.manage.form.EvaItemUpdateForm;
@@ -77,9 +78,8 @@ public class EvaItemLogDetailBuilder {
         @SuppressWarnings("unchecked")
         public String build(JoinPoint joinPoint, ServletRequestAttributes attributes, Object returnObj) {
             String evnId = (String)joinPoint.getArgs()[1];
-            ResultVo<OkVo> result = (ResultVo<OkVo>)returnObj;
-            boolean ok = result.getRs().isOk();
-            return String.format("导入:%s;测评编号:%s",  ok?"成功":"失败", evnId);
+            ResultVo<ImportVo> result = (ResultVo<ImportVo>)returnObj;
+            return String.format("导入测评编号:%s,错误条数:%d",  evnId, result.getRs().getErrCount());
         }
     }
 }

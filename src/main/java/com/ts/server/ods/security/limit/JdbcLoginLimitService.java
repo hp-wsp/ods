@@ -41,7 +41,7 @@ public class JdbcLoginLimitService implements LoginLimitService {
     public int incFail(String username) {
         String day = LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd"));
         int count = getFailCount(username, day);
-        if(count == 0){
+        if(count == -1){
             insertFail(username, day);
             return 1;
         }
@@ -50,9 +50,13 @@ public class JdbcLoginLimitService implements LoginLimitService {
     }
 
     private int getFailCount(String username, String day){
-        final String sql = "SELECT SUM(l_count) FROM l_login_limit WHERE username = ? AND l_day = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{username, day}, Integer.class);
-        return count == null? 0: count;
+        try{
+            final String sql = "SELECT l_count FROM l_login_limit WHERE username = ? AND l_day = ?";
+            Integer count = jdbcTemplate.queryForObject(sql, new Object[]{username, day}, Integer.class);
+            return count == null? 0: count;
+        }catch (DataAccessException e){
+            return -1;
+        }
     }
 
     private void incFailCount(String username , String day){

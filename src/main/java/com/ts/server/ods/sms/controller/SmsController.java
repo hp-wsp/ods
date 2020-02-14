@@ -1,6 +1,7 @@
 package com.ts.server.ods.sms.controller;
 
 import com.ts.server.ods.controller.vo.ResultPageVo;
+import com.ts.server.ods.security.annotation.ApiACL;
 import com.ts.server.ods.sms.domain.SmsLog;
 import com.ts.server.ods.sms.service.SmsService;
 import io.swagger.annotations.Api;
@@ -20,6 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
  * @author <a href="mailto:hhywangwei@gmail.com">WangWei</a>
  */
 @RestController
+@ApiACL({"ROLE_SYS"})
 @RequestMapping("/manage/sms")
 @Api(value = "/manage/sms", tags = "短信发送查询API接口")
 public class SmsController {
