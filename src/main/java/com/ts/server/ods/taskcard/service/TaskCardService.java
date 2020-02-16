@@ -195,6 +195,9 @@ public class TaskCardService {
             throw new BaseException("退回失败");
         }
 
+        itemDao.findByCardId(id).forEach(e -> itemDao.grade(e.getId(), "", 0, ""));
+        dao.updateGradeScore(id, 0);
+
         return get(id);
     }
 

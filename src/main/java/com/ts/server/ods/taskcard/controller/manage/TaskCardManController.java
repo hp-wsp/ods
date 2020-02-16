@@ -53,7 +53,7 @@ public class TaskCardManController {
     }
 
     @DeleteMapping(value = "{id}", produces = APPLICATION_JSON_UTF8_VALUE)
-    @EnableApiLogger(name = "修改评测卡", buildDetail = TaskCardLogDetailBuilder.DeleteBuilder.class)
+    @EnableApiLogger(name = "删除评测卡", buildDetail = TaskCardLogDetailBuilder.DeleteBuilder.class)
     @ApiOperation("删除评测卡")
     public ResultVo<OkVo> delete(@PathVariable("id")String id){
         boolean ok = service.delete(id);
